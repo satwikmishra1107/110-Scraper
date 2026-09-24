@@ -9,7 +9,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
 const COMPANY_DELAY_MS = 500;
 
 // ---- Original filter logic (unchanged from the pre-Supabase scripts) ----
-export const MAX_POSTING_AGE_DAYS = 7;
+export const MAX_POSTING_AGE_DAYS = 1;
 const NOW = Date.now();
 
 const SD_KEYWORDS = [

@@ -7,7 +7,7 @@ const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
 const GEMINI_MODEL_VERSION = "gemini-3.5-flash-lite";
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const RESULTS_PER_PAGE = 20; 
 const MAX_PAGES = 50; 
 const STALE_PAGES_BEFORE_STOP = 2; 
