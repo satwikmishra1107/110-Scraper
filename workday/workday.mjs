@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
-import { saveJobsAndGetNew } from "../store.mjs";
+import {  saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet } from "../store.mjs";
 
 // --- Configuration Constants ---
 const JOB_SEARCH_CRITERIA =
@@ -24,13 +24,7 @@ const delay = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 // Load cache if it exists, otherwise start fresh
-const facetCache = fs.existsSync(FACET_CACHE_FILENAME)
-  ? JSON.parse(fs.readFileSync(FACET_CACHE_FILENAME, "utf8"))
-  : {};
-
-function saveFacetCache() {
-  fs.writeFileSync(FACET_CACHE_FILENAME, JSON.stringify(facetCache, null, 2));
-}
+const facetCache = await loadFacetCache();
 
 // ---------- Workday API Interaction ----------
 
@@ -153,7 +147,6 @@ async function selectFacetsUsingAI(availableFacets) {
 
 async function getOrResolveFacets(company) {
   if (!facetCache[company.name]) {
-    // Only probe the API when we actually need to resolve facets (was probing every run before)
     const probeResponse = await fetchFromWorkdayApi(company.url, {
       limit: RESULTS_PER_PAGE,
       offset: 0,
@@ -162,15 +155,11 @@ async function getOrResolveFacets(company) {
       `  └─ Asking AI to resolve facet mapping for ${company.name}...`,
     );
     facetCache[company.name] = await selectFacetsUsingAI(probeResponse.facets);
-    saveFacetCache();
+    await saveFacet(company.name, facetCache[company.name]);
   }
   return facetCache[company.name];
 }
 
-// ---------- Normalizing output (same shape for every scraper, not just Workday) ----------
-
-// Workday API url looks like: https://{host}/wday/cxs/{tenant}/{site}/jobs
-// Public job url looks like:  https://{host}/{site}{externalPath}
 function buildPublicJobUrl(apiUrl, externalPath) {
   const { origin, pathname } = new URL(apiUrl);
   const site = pathname.split("/")[4] ?? "";
@@ -232,11 +221,9 @@ async function scrapeCompany(company, scrapedAt, isRetry = false) {
       await delay(300);
     }
   } catch (error) {
-    // A 400 usually means the company's facet IDs changed since we cached them.
-    // Drop the cache entry and try exactly once more.
     if (error.status === 400 && !isRetry) {
       delete facetCache[company.name];
-      saveFacetCache();
+      await deleteFacet(company.name);
       return scrapeCompany(company, scrapedAt, true);
     }
     throw error;

@@ -9,10 +9,29 @@ const supabase = createClient(
 
 const BATCH_SIZE = 500;
 
-// Inserts jobs; rows that already exist (same company + job_id) are skipped by the DB.
-// Returns ONLY the rows that were actually inserted = the genuinely new jobs.
+// ---------- Workday facet cache (table: workday_facets) ----------
+
+export async function loadFacetCache() {
+  const { data, error } = await supabase.from("workday_facets").select("company, facets");
+  if (error) throw new Error(`Supabase facet load failed: ${error.message}`);
+  return Object.fromEntries(data.map((row) => [row.company, row.facets]));
+}
+
+export async function saveFacet(company, facets) {
+  const { error } = await supabase
+    .from("workday_facets")
+    .upsert({ company, facets, updated_at: new Date().toISOString() });
+  if (error) throw new Error(`Supabase facet save failed: ${error.message}`);
+}
+
+export async function deleteFacet(company) {
+  const { error } = await supabase.from("workday_facets").delete().eq("company", company);
+  if (error) throw new Error(`Supabase facet delete failed: ${error.message}`);
+}
+
+// ---------- Jobs (table: jobs) ----------
+
 export async function saveJobsAndGetNew(jobs) {
-  // Drop duplicates inside this batch (same job seen on two pages)
   const unique = [...new Map(jobs.map((j) => [`${j.company}|${j.job_id}`, j])).values()];
   const rows = unique.map(({ scraped_at, ...row }) => row); // scraped_at isn't a column
 
