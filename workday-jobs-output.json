@@ -1,6 +1,6 @@
 {
   "source": "workday",
-  "scraped_at": "2026-09-24T18:11:38.251Z",
+  "scraped_at": "2026-09-24T18:37:27.646Z",
   "jobs": [
     {
       "source": "workday",
@@ -11,7 +11,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-10/STAFF--SOFTWARE-ENGINEER_R-2646399",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -22,7 +22,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-10/XMLNAME--IND--Senior--Software-Engineer_R-2646401",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -33,7 +33,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PW-II/STAFF--SOFTWARE-ENGINEER_R-2624668-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -44,7 +44,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PW-II/STAFF--SOFTWARE-ENGINEER--Full-Stack-with-AI-_R-2624540",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -55,7 +55,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-11/Principal--Software-Engineer_R-2631395-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -66,7 +66,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-TN-CHENNAI-Home-Office-Capita-Land/Software-Engineer-III---FullStack_R-2566935",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -77,18 +77,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-TN-CHENNAI-Home-Office-Capita-Land/XMLNAME--IND--PRINCIPAL--SOFTWARE-ENGINEER_R-2642047-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Walmart",
-      "job_id": "/job/IN-TN-CHENNAI-Home-Office-Capita-Land/SENIOR--SOFTWARE-ENGINEER_R-2568124",
-      "title": "SENIOR, SOFTWARE ENGINEER",
-      "location": "IN TN CHENNAI Home Office Capita Land",
-      "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-TN-CHENNAI-Home-Office-Capita-Land/SENIOR--SOFTWARE-ENGINEER_R-2568124",
-      "posted_label": "Posted Today",
-      "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -99,7 +88,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PTPP1/STAFF--SOFTWARE-ENGINEER_R-2649281",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -110,7 +99,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PTPP1/SENIOR--SOFTWARE-ENGINEER_R-2649261",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -121,18 +110,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-TN-CHENNAI-Home-Office-Capita-Land/SENIOR-MANAGER--SOFTWARE-ENGINEERING_R-2640752-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Walmart",
-      "job_id": "/job/IN-KA-BANGALORE-Home-Office-Building-10/Senior--Software-Engineer_R-2483962",
-      "title": "Senior, Software Engineer",
-      "location": "IN KA BANGALORE Home Office Building 10",
-      "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-10/Senior--Software-Engineer_R-2483962",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -143,7 +121,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PTPP1/Software-Engineer-III_R-2647623",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -154,7 +132,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-10/STAFF--SOFTWARE-ENGINEER_R-2603497",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -165,18 +143,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PTPP1/STAFF--SOFTWARE-ENGINEER_R-2628247",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Walmart",
-      "job_id": "/job/IN-KA-BANGALORE-Home-Office-Building-11/XMLNAME--IND--SENIOR--SOFTWARE-ENGINEER_R-2648863",
-      "title": "(IND) SENIOR, SOFTWARE ENGINEER",
-      "location": "IN KA BANGALORE Home Office Building 11",
-      "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-11/XMLNAME--IND--SENIOR--SOFTWARE-ENGINEER_R-2648863",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -187,7 +154,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-10/XMLNAME--IND--STAFF--SOFTWARE-ENGINEER_R-2629806",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -198,7 +165,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-TN-CHENNAI-Home-Office-Capita-Land/SOFTWARE-ENGINEER-III--iOS-Engineer-_R-2604865",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -209,29 +176,7 @@
       "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-Building-11/XMLNAME--IND--STAFF--SOFTWARE-ENGINEER_R-2634400-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Walmart",
-      "job_id": "/job/IN-KA-BANGALORE-Home-Office-PW-II/Software-Engineer-III_R-2421006-1",
-      "title": "Software Engineer III",
-      "location": "IN KA BANGALORE Home Office PW II",
-      "url": "https://walmart.wd504.myworkdayjobs.com/WalmartExternal/job/IN-KA-BANGALORE-Home-Office-PW-II/Software-Engineer-III_R-2421006-1",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Salesforce",
-      "job_id": "/job/India---Bangalore/Software-Engineering-LMTS_JR338174",
-      "title": "Software Engineering LMTS - Backend Distributed Systems",
-      "location": "2 Locations",
-      "url": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/India---Bangalore/Software-Engineering-LMTS_JR338174",
-      "posted_label": "Posted Today",
-      "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -242,7 +187,7 @@
       "url": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/India---Hyderabad/Sr-Data-Engineer--Python---SQL-exp-mandatory-_JR358536",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -253,7 +198,7 @@
       "url": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/India---Hyderabad/Software-Engineering-MTS--QA-Engineer-_JR358717-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -264,7 +209,7 @@
       "url": "https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/India---Bangalore/Staff-Content-Designer_JR359267",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -275,7 +220,7 @@
       "url": "https://adobe.wd5.myworkdayjobs.com/external_experienced/job/Bangalore/Principal---Business-Process-Optimization_R172036-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -286,7 +231,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Pune/System-Software-Manager---Power-Profiling-and-Infrastructure_JR2025927",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -297,7 +242,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Bengaluru/Senior-Staff-Site-Reliability-Engineer_JR2026457-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -308,7 +253,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Pune/Senior-System-Software-Engineer_JR2026346",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -319,7 +264,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Pune/Senior-System-Software-Engineer_JR2026404",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -330,7 +275,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Pune/Senior-System-Software-Engineer_JR2026342",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -341,7 +286,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Bengaluru/High-Speed-IO-Validation-Engineer_JR2025319",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -352,7 +297,7 @@
       "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Bengaluru/Architect---System-Performance-Verification-and-Analysis_JR2025636",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -363,7 +308,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-Oregon-Hillsboro/Data-Center-Manager_JR0286645",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -374,7 +319,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-California-Folsom/Data-Center-Manager_JR0284697-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -385,7 +330,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-Arizona-Phoenix/Senior-Network-Operations-Engineer_JR0286035",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -396,7 +341,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/Israel-Haifa/Software-Engineer_JR0283723",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -407,7 +352,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-Oregon-Hillsboro/Senior-Density-Fill-Development-Engineer_JR0286337-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -418,7 +363,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-California-Santa-Clara/AI-Software-Development-Engineer---Neuromorphic-Computing_JR0287335",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -429,7 +374,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/US-Arizona-Phoenix/Software-Application-Development-Engineer_JR0282062-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -440,7 +385,7 @@
       "url": "https://intel.wd1.myworkdayjobs.com/External/job/PRC-Shanghai/AI-Software-Development-Engineer_JR0287413",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -451,7 +396,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Director--Governance--Risk---Compliance--ITC_R-92780",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -462,7 +407,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Senior-Software-Engineer--ITC_R-91641-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -473,7 +418,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Senior-Software-Engineer--ITC_R-92765",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -484,7 +429,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Director-Software-Engineering--Runtime-and-cross-plane-Engineering--ITC_R-87007",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -495,7 +440,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Lead-Software-Engineer--ITC_R-92764",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -506,7 +451,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Director--Information-Security-Engineering---ITC_R-92748",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -517,7 +462,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-I--ITC_R-92757",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -528,7 +473,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Beaverton-Oregon/Senior-Manager--Software-Engineering_R-88277",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -539,18 +484,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Lead-Technical-Product-Manager-Finance--ITC_R-90514",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Nike",
-      "job_id": "/job/Karnataka-India/Lead-Information-Security-Engineer--ITC_R-87399",
-      "title": "Lead Information Security Engineer, ITC",
-      "location": "Karnataka, India",
-      "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Lead-Information-Security-Engineer--ITC_R-87399",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -561,7 +495,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Principal-Information-Security-Engineer--ITC_R-92705-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -572,7 +506,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Hilversum-Netherlands/Senior-Software-Engineer---Windows-Platform-Engineering_R-92353",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -583,7 +517,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II--ITC_R-91605",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -594,7 +528,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II---OutSystems--ITC_R-92696",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -605,7 +539,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II---OutSystems--ITC_R-92695",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -616,7 +550,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-III--ITC_R-85412-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -627,7 +561,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-III--ITC_R-85411",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -638,7 +572,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II---Cloud-Integration--ITC_R-92694",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -649,7 +583,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II--ITC_R-85410",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -660,7 +594,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Software-Engineer-II--ITC_R-85403",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -671,7 +605,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Senior-Software-Engineer---OutSystems--ITC_R-92693",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -682,7 +616,7 @@
       "url": "https://nike.wd1.myworkdayjobs.com/nke/job/Karnataka-India/Manager-Software-Engineering--ITC_R-87969",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -693,7 +627,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Vancouver-Canada/Senior-Software-Engineer--Java-_R-291383",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -704,7 +638,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Senior-Software-Engineer_R-279539",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -715,7 +649,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Senior-Software-Engineer_R-291613",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -726,7 +660,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Lead-Technical-Program-Manager_R-291416",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -737,7 +671,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Arlington-Virginia/Senior-Software-Engineer_R-288715",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -748,7 +682,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Manager--Technical-Program-Management_R-291737",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -759,7 +693,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Lead-Cloud-Engineer_R-291290",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -770,7 +704,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Business-Analyst_R-288493-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -781,7 +715,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Copenhagen-Denmark-Arne-Jacobsens/Lead-Java-Software-Development-Engineer_R-280016",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -792,7 +726,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Manager--Software-Engineering_R-273743",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -803,7 +737,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Vancouver-Canada/Senior-AI-Engineer_R-289918-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -814,7 +748,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/San-Francisco-California/Vice-President--Software-Engineering_R-290779",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -825,7 +759,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Lead-Software-Engineer_R-289668",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -836,7 +770,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Manager--AI-Engineering--Tester--_R-281585-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -847,7 +781,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Senior-AI-Engineer_R-282682-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -858,7 +792,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Senior-Data-Engineer---Spark---Kafka---NiFi_R-277722",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -869,7 +803,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Purchase-New-York/Director--AI-Engineering--Transformation-Team_R-291378-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -880,7 +814,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Arlington-Virginia/Principal-AI-Platform-Engineer---AI-Center-of-Excellence_R-282567",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -891,7 +825,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Toronto-Canada/Principal-Software-Engineer_R-287176",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -902,7 +836,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Senior-AI-Platform-Engineer--DevOps-_R-287470-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -913,7 +847,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Software-Engineer-II_R-290198",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -924,7 +858,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Data-Analyst_R-288489",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -935,7 +869,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Vice-President--Software-Engineering_R-289049",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -946,7 +880,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Software-Engineer_R-282632",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -957,7 +891,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Manager--Technical-Program-Management_R-291503",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -968,7 +902,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Software-Engineer---C-C----Unix-Linux--ARQC--ARPC--HSM_R-281192",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -979,7 +913,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Senior-Technical-Program-Manager_R-291447-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -990,7 +924,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Gurgaon-India/AI-Engineer_R-291884",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1001,7 +935,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Software-Engineer_R-278188-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1012,7 +946,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Copenhagen-Denmark-Arne-Jacobsens/Lead-Software-Engineer---Java_R-291323",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1023,7 +957,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Senior-Software-Engineer_R-291289-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1034,7 +968,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Lead-Software-Engineer_R-291288",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1045,7 +979,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Dublin-Ireland/Principal-Software-Engineer_R-291005",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1056,18 +990,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Bogota-Colombia/Senior-Business-Analyst_R-289429",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Mastercard",
-      "job_id": "/job/OFallon-Missouri/Manager--Business-Analysis_R-290956",
-      "title": "Manager, Business Analysis",
-      "location": "O'Fallon, Missouri",
-      "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/OFallon-Missouri/Manager--Business-Analysis_R-290956",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1078,7 +1001,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/New-York-City-New-York/Senior-Technical-Program-Manager--Planning---Payments-Domain-_R-288851",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1089,7 +1012,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Network-Architect-2_R-282717-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1100,7 +1023,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Director--Product-Value-Quantification_R-278889",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1111,7 +1034,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal/Senior-Software-Engineer---Java-Spring_R-290210",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1122,7 +1045,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Senior-Technical-Program-Manager_R-290569",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1133,7 +1056,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Lisbon-Portugal-DeHouse/Senior-Java-Backend-Engineer_R-290158",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1144,7 +1067,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/AI-Engineer_R-279646",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1155,7 +1078,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Senior-AI-Data-Engineer_R-289110-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1166,7 +1089,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Dublin-Ireland/Senior-AI-Engineer---Foundation-Models-and-Transformers-1_R-286224",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1177,7 +1100,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Principal-Data-Engineer--Data-Platforms-_R-290629",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1188,7 +1111,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Senior-Software-Engineer_R-291731",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1199,7 +1122,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Software-Engineer-II_R-291535",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1210,18 +1133,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Data-Engineer--Data-Platforms-_R-291105",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Mastercard",
-      "job_id": "/job/Pune-India/Software-Engineer---Java-Spring-Boot_R-289508",
-      "title": "Software Engineer - Java Spring Boot",
-      "location": "Pune, India",
-      "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Software-Engineer---Java-Spring-Boot_R-289508",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1232,7 +1144,7 @@
       "url": "https://mastercard.wd1.myworkdayjobs.com/CorporateCareers/job/Pune-India/Lead-Software-Engineer--Java-_R-289611",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1243,7 +1155,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Sr-Software-Engineer_REF078405W",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1254,7 +1166,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Senior-Software-Engineer_REF088166W",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1265,7 +1177,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Sr-Software-Engineer--3---6-years-of-experience-in-Oracle-EBS--R12-development-_REF083128W",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1276,7 +1188,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Software-Engineer--1---2-years-of-experience-in-Python--GenAI--ML--Deep-Learning-_REF088653W",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1287,7 +1199,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Software-Engineer_REF088484W",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1298,7 +1210,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Systems-Engineer_REF088388W",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1309,7 +1221,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Senior-Systems-Engineer_REF088353W-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1320,7 +1232,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/SW-Engineer_REF088386W-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1331,7 +1243,7 @@
       "url": "https://visa.wd5.myworkdayjobs.com/Visa/job/IN---Bengaluru-India/Senior-Systems-Engineer----Linux-Engineering--RHEL--Rocky--Ubuntu--Automation--3---6-years-_REF088537W-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1342,7 +1254,7 @@
       "url": "https://ms.wd5.myworkdayjobs.com/External/job/Mumbai-India/EDD-Reviewer--Associate--1L-Financial-Crimes-Risk--Wealth-Management_PT-JR044200",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1353,7 +1265,7 @@
       "url": "https://ms.wd5.myworkdayjobs.com/External/job/Bengaluru-India/Full-Stack--Angular-Java----Director---Software-Engineering_JR044086",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1364,7 +1276,7 @@
       "url": "https://ms.wd5.myworkdayjobs.com/External/job/Mumbai-India/Business-Risk-Management-Lead--Investment-Solutions--Vice-President--Wealth-Management_PT-JR044447-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1375,7 +1287,7 @@
       "url": "https://zillow.wd5.myworkdayjobs.com/Zillow_Group_External/job/Mexico-City/Mobile-Engineer--iOS_P751306-2",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1386,7 +1298,7 @@
       "url": "https://zillow.wd5.myworkdayjobs.com/Zillow_Group_External/job/Mexico-City/Software-Development-Engineer--Backend--Python--Kubernetes-_P751307-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1397,7 +1309,7 @@
       "url": "https://zillow.wd5.myworkdayjobs.com/Zillow_Group_External/job/Remote-USA/IT-Support-Specialist_P751346-2",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1408,7 +1320,7 @@
       "url": "https://ffive.wd5.myworkdayjobs.com/f5jobs/job/Hyderabad-SEZ/Software-Development-Engineer-II_RP1038224",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1419,7 +1331,7 @@
       "url": "https://blackrock.wd1.myworkdayjobs.com/BlackRock_Professional/job/London-Greater-London/Vice-President--Network-Engineer---Senior-Engineer-I_R266653",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1430,7 +1342,7 @@
       "url": "https://blackrock.wd1.myworkdayjobs.com/BlackRock_Professional/job/Wilmington-DE/Aladdin-Data-Implementation-Lead--AI-Enabled-Delivery---Director_R266639",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1441,7 +1353,7 @@
       "url": "https://blackrock.wd1.myworkdayjobs.com/BlackRock_Professional/job/Sausalito-CA/Vice-President--Senior-Data-Analyst_R266481",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1452,7 +1364,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Washington---Seattle-Campus/Software-Development-Engineer-III--Media-Solutions_R-109666-2",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1463,7 +1375,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Austin-Domain-11---HomeAway/Senior-Product-Security-Architect_R-108173-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1474,7 +1386,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/UK---London/Senior-Product-Manager--Loyalty_R-109310-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1485,7 +1397,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Gurgaon/Mobile-Engineer-III--iOS_R-109925",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1496,7 +1408,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Washington---Seattle-Campus/Software-Development-Engineer-II---InsurTech_R-110027-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1507,40 +1419,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Bangalore/Machine-Learning-Engineer-II_R-107194",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Expedia",
-      "job_id": "/job/India---Bangalore/Software-Development-Engineer-II_R-108469-1",
-      "title": "Software Development Engineer II",
-      "location": "India - Bangalore",
-      "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Bangalore/Software-Development-Engineer-II_R-108469-1",
-      "posted_label": "Posted Today",
-      "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Expedia",
-      "job_id": "/job/India---Bangalore/Software-Development-Engineer-III_R-108468-1",
-      "title": "Software Development Engineer III",
-      "location": "India - Bangalore",
-      "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Bangalore/Software-Development-Engineer-III_R-108468-1",
-      "posted_label": "Posted Today",
-      "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "Expedia",
-      "job_id": "/job/India---Gurgaon/Software-Development-Engineer-II_R-107846-1",
-      "title": "Software Development Engineer II",
-      "location": "India - Gurgaon",
-      "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Gurgaon/Software-Development-Engineer-II_R-107846-1",
-      "posted_label": "Posted Today",
-      "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1551,7 +1430,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Washington---Seattle-Campus/Senior-Machine-Learning-engineer---Distribution---Supply_R-106600",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1562,7 +1441,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/USA---Illinois---Chicago/Software-Development-Engineer-II_R-109976",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1573,7 +1452,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Canada---Quebec---Montreal/Dveloppeur--euse--principal-e--de-logiciels--contenu---Principal-Software-Development-Engineer_R-107278-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1584,7 +1463,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Austin-Domain-11---HomeAway/Senior-Engineering-Manager--Design-System_R-109796-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1595,7 +1474,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Washington---Seattle-Campus/Manager--Marketing-Technology---Enablement_R-102747-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1606,7 +1485,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Austin-Domain-11---HomeAway/Data-Engineer-III---Click-Stream-Data-Products_R-109710",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1617,7 +1496,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/Washington---Seattle-Campus/Software-Development-Engineer-III---Loyalty_R-109614-2",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1628,7 +1507,7 @@
       "url": "https://expedia.wd108.myworkdayjobs.com/search/job/India---Gurgaon/Data-Engineer---II_R-109842-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1639,7 +1518,7 @@
       "url": "https://jiostar.wd102.myworkdayjobs.com/JioStar/job/Bengaluru--We-Work/Staff-Software-Development-Engineer_JR12448",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1650,7 +1529,7 @@
       "url": "https://jiostar.wd102.myworkdayjobs.com/JioStar/job/Bengaluru--We-Work/Software-Development-Engineer-II_JR12407",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1661,7 +1540,7 @@
       "url": "https://jiostar.wd102.myworkdayjobs.com/JioStar/job/Bengaluru/Software-Development-Engineer-II_JR12444",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1672,7 +1551,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Lead-Information-Security-Engineer---Architect_R-571297",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1683,7 +1562,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Software-Engineering-Senior-Manager-Electronic-Trading-Java-and-or-C---AI_R-576931",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1694,7 +1573,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Lead-Information-Security-Engineer-AppSec-Champion_R-575925-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1705,7 +1584,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Senior-Software-Engineer---Java-Full-Stack_R-576842",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1716,7 +1595,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Software-Engineer---Java-backend-Development_R-570931-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1727,7 +1606,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Lead-Technology-Business-Systems-Consultant_R-577855",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1738,7 +1617,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Lead-Software-Engineer_R-538067",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1749,7 +1628,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Specialty-Lead-Software-Engineer-SAP-RE-FX--ECC-and-S-4-HANA-_R-559640",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1760,7 +1639,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Software-Engineering-Senior-Manager_R-562391",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1771,7 +1650,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Senior-Software-Engineer_R-569022",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1782,7 +1661,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Information-Security-Engineering-Senior-Manager---Critical-Infrastructure_R-575964",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1793,7 +1672,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Software-Engineering-Manager_R-570266",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1804,7 +1683,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Systems-Operations-Senior-Manager--SRE--Production-Ops--Operational-Excellence-_R-572228",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1815,7 +1694,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Principal-Engineer--Java-Fullstack--Generative-AI_R-576892",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1826,7 +1705,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Principal-Engineer---Data-Engineering--AI---Distributed-Systems_R-576864-1",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1837,7 +1716,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Principal-Engineer_R-576894",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1848,7 +1727,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/System-Operations-Engineer---Production-Support_R-576901",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1859,18 +1738,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Bengaluru-India/Software-Engineering-Manager---Net---AI_R-576918",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
-    },
-    {
-      "source": "workday",
-      "company": "WellsFargo",
-      "job_id": "/job/Hyderabad-India/Software-Engineer---Java-Full-Stack_R-575498",
-      "title": "Software Engineer - Java Full Stack",
-      "location": "Hyderabad, India",
-      "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Software-Engineer---Java-Full-Stack_R-575498",
-      "posted_label": "Posted Yesterday",
-      "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1881,7 +1749,7 @@
       "url": "https://wf.wd1.myworkdayjobs.com/WellsFargoJobs/job/Hyderabad-India/Software-Engineer---Salesforce-Development_R-570932",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1892,7 +1760,7 @@
       "url": "https://paypal.wd1.myworkdayjobs.com/jobs/job/San-Jose-California-United-States-of-America/Senior-Database-Engineer_R0137734",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1903,7 +1771,7 @@
       "url": "https://paypal.wd1.myworkdayjobs.com/jobs/job/Chicago-Illinois-United-States-of-America/Manager--Technical-Programs_R0137861",
       "posted_label": "Posted Today",
       "posted_date": "2026-09-24",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1914,7 +1782,7 @@
       "url": "https://paypal.wd1.myworkdayjobs.com/jobs/job/Austin-Texas-United-States-of-America/Staff-Product-Security-AI-Engineer_R0137563",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1925,7 +1793,7 @@
       "url": "https://springernature.wd3.myworkdayjobs.com/SpringerNatureCareers/job/Berlin/Product-Manager_JR104927-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1936,7 +1804,7 @@
       "url": "https://springernature.wd3.myworkdayjobs.com/SpringerNatureCareers/job/Pune/Associate-Research-Integrity-Adviser_JR107151-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1947,7 +1815,7 @@
       "url": "https://salesforce.wd12.myworkdayjobs.com/Slack/job/California---San-Francisco/Staff-Backend-Product-Engineer--SlackBot-_JR359771",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1958,7 +1826,7 @@
       "url": "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers/job/Milpitas-California-US/Principal-Software-Engineer_2004135",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1969,7 +1837,7 @@
       "url": "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers/job/Vancouver-British-Columbia-Canada/Software-Technical-Leader_2019470",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1980,7 +1848,7 @@
       "url": "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers/job/Denver-Colorado-US/Detection-Engineering-Technical-Leader_2022041-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     },
     {
       "source": "workday",
@@ -1991,20 +1859,20 @@
       "url": "https://cisco.wd5.myworkdayjobs.com/Cisco_Careers/job/San-Jose-California-US/Hardware-Engineer_2021697-1",
       "posted_label": "Posted Yesterday",
       "posted_date": "2026-09-23",
-      "scraped_at": "2026-09-24T18:11:38.251Z"
+      "scraped_at": "2026-09-24T18:37:27.646Z"
     }
   ],
   "report": [
     {
       "company": "Walmart",
       "ok": true,
-      "count": 20,
+      "count": 16,
       "error": null
     },
     {
       "company": "Salesforce",
       "ok": true,
-      "count": 4,
+      "count": 3,
       "error": null
     },
     {
@@ -2034,7 +1902,7 @@
     {
       "company": "Nike",
       "ok": true,
-      "count": 22,
+      "count": 21,
       "error": null
     },
     {
@@ -2046,7 +1914,7 @@
     {
       "company": "Mastercard",
       "ok": true,
-      "count": 50,
+      "count": 48,
       "error": null
     },
     {
@@ -2088,7 +1956,7 @@
     {
       "company": "Expedia",
       "ok": true,
-      "count": 17,
+      "count": 14,
       "error": null
     },
     {
@@ -2100,7 +1968,7 @@
     {
       "company": "WellsFargo",
       "ok": true,
-      "count": 20,
+      "count": 19,
       "error": null
     },
     {

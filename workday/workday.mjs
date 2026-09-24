@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
+import { saveJobsAndGetNew } from "../store.mjs";
 
 // --- Configuration Constants ---
 const JOB_SEARCH_CRITERIA =
@@ -295,12 +296,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log(`\nTotal jobs collected across all working platforms: ${result.jobs.length}\n`);
 
   // Print the actual job data (not just counts) so you can see it before Supabase is wired up
-  console.log("=== JOBS (JSON) ===");
-  console.log(JSON.stringify(result.jobs, null, 2));
+  // console.log("=== JOBS (JSON) ===");
+  // console.log(JSON.stringify(result.jobs, null, 2));
 
   // Also save it to a file so you can inspect/diff it between runs
-  fs.writeFileSync(RESULTS_OUTPUT_FILENAME, JSON.stringify(result, null, 2));
-  console.log(`\nSaved full result to ${RESULTS_OUTPUT_FILENAME}`);
+  // fs.writeFileSync(RESULTS_OUTPUT_FILENAME, JSON.stringify(result, null, 2));
+  // console.log(`\nSaved full result to ${RESULTS_OUTPUT_FILENAME}`);
+
+  const newJobs = await saveJobsAndGetNew(result.jobs);
+  console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
+  // console.table(newJobs.map(({ company, title, location, url }) => ({ company, title, location, url })));
 
   if (result.report.every((r) => !r.ok)) process.exitCode = 1; // let a scheduler see total failure
 }
