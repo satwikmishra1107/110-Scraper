@@ -1,19 +1,21 @@
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
-import {  saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet } from "../store.mjs";
+import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet } from "../store.mjs";
 
 // --- Configuration Constants ---
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
 const GEMINI_MODEL_VERSION = "gemini-3.5-flash-lite";
 
+// Day-level dates only ("Posted Today" / "Posted Yesterday"): 1 = today + yesterday,
+// which always covers a rolling 24h window. Overlap across hourly runs is fine —
+// the DB dedupes on (company, job_id).
 const MAX_POSTING_AGE_DAYS = 1;
 const RESULTS_PER_PAGE = 20; // Workday max per page
 const MAX_PAGES = 50; // hard ceiling so a bug can't loop forever
 const STALE_PAGES_BEFORE_STOP = 2; // consecutive empty-of-recent pages before we stop
 const REQUEST_TIMEOUT_MS = 30_000;
-const FACET_CACHE_FILENAME = "./workday/workday-facets-cache.json";
 // const RESULTS_OUTPUT_FILENAME = "./workday-jobs-output.json"; // temporary, until Supabase is wired up
 
 // Load Companies from external JSON file
@@ -23,7 +25,7 @@ const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
 const delay = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-// Load cache if it exists, otherwise start fresh
+// Load all cached facet mappings from Supabase once at startup
 const facetCache = await loadFacetCache();
 
 // ---------- Workday API Interaction ----------
@@ -45,12 +47,14 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
     } catch (error) {
       // network drop / timeout — retry
       lastError = error;
+      console.log(`  └─ Workday request failed (${error.message}) — retrying (attempt ${attempt + 1}/5)`);
       await delay(3000 * (attempt + 1));
       continue;
     }
 
     if (response.status === 429 || response.status >= 500) {
       lastError = new Error(`HTTP ${response.status}`);
+      console.log(`  └─ Workday HTTP ${response.status} — retrying (attempt ${attempt + 1}/5)`);
       await delay(3000 * (attempt + 1));
       continue;
     }
@@ -91,6 +95,53 @@ function flattenFacetTree(nodes, parentParameterName = null, flatList = []) {
   return flatList;
 }
 
+// Retries on 429 (rate limit), 5xx (overloaded/unavailable), network errors and timeouts.
+// Error messages include Gemini's own explanation so the console says WHY it failed.
+async function callGeminiWithRetry(prompt, maxAttempts = 4) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_VERSION}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": process.env.GEMINI_API_KEY,
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          }),
+          signal: AbortSignal.timeout(60_000),
+        },
+      );
+
+      if (response.ok) return response.json();
+
+      const body = await response.text();
+      let reason = body.slice(0, 300);
+      try {
+        reason = JSON.parse(body).error?.message ?? reason; // Gemini's human-readable reason
+      } catch {}
+      lastError = new Error(`Gemini API Error ${response.status}: ${reason}`);
+
+      const retryable = response.status === 429 || response.status >= 500;
+      if (!retryable) throw lastError; // e.g. 400 bad request, 403 bad key — retrying won't help
+    } catch (error) {
+      if (error === lastError) throw error;
+      lastError = new Error(`Gemini request failed: ${error.name === "TimeoutError" ? "timed out after 60s" : error.message}`);
+    }
+
+    if (attempt < maxAttempts) {
+      const waitMs = 5000 * attempt; // 5s, 10s, 15s
+      console.log(`  └─ ${lastError.message} — retrying in ${waitMs / 1000}s (attempt ${attempt}/${maxAttempts})`);
+      await delay(waitMs);
+    }
+  }
+  throw new Error(`${lastError.message} (gave up after ${maxAttempts} attempts)`);
+}
+
 async function selectFacetsUsingAI(availableFacets) {
   const flattenedFacets = flattenFacetTree(availableFacets);
 
@@ -100,31 +151,21 @@ async function selectFacetsUsingAI(availableFacets) {
     `Use only ids from the list above. Return ONLY a JSON object mapping parameterName to an array of ids, ` +
     `e.g. {"locationHierarchy1":["id1"],"jobFamilyGroup":["id2","id3"]}`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_VERSION}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY,
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" },
-      }),
-    },
-  );
-
-  if (!response.ok) throw new Error(`Gemini API Error ${response.status}`);
-
-  const responseData = await response.json();
+  const responseData = await callGeminiWithRetry(prompt);
   const generatedText =
     responseData.candidates?.[0]?.content?.parts
       ?.map((part) => part.text)
       .join("") ?? "";
-  const aiSelectedFacets = JSON.parse(
-    generatedText.replace(/```json|```/g, "").trim(),
-  );
+
+  let aiSelectedFacets;
+  try {
+    aiSelectedFacets = JSON.parse(generatedText.replace(/```json|```/g, "").trim());
+  } catch {
+    throw new Error(
+      `Gemini returned invalid JSON (finishReason: ${responseData.candidates?.[0]?.finishReason ?? "unknown"}): ` +
+        `${generatedText.slice(0, 200) || "<empty response>"}`,
+    );
+  }
 
   const validFacetIds = new Set(flattenedFacets.map((facet) => facet.id));
   const validatedFacets = {};
