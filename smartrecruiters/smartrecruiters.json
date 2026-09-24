@@ -1,0 +1,15 @@
+[
+  { "company": "ServiceNow", "slug": "ServiceNow" },
+  { "company": "Intuit", "slug": "Intuit2" },
+  { "company": "Zomato", "slug": "Zomato1" },
+  { "company": "Swiggy", "slug": "SWIGGY" },
+  { "company": "Canva", "slug": "Canva" },
+  { "company": "Freshworks", "slug": "Freshworks" },
+  { "company": "LinkedIn", "slug": "LinkedIn3" },
+  { "company": "Adobe", "slug": "Adobe1" },
+  { "company": "Visa", "slug": "Visa" },
+  { "company": "Ubisoft", "slug": "Ubisoft2" },
+  { "company": "Square", "slug": "Square" },
+  { "company": "Bosch", "slug": "BoschGroup" },
+  { "company": "Biogen", "slug": "Biogen" }
+]

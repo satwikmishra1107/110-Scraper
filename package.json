@@ -1,0 +1,22 @@
+{
+  "name": "career-watcher",
+  "version": "1.0.0",
+  "description": "Hourly ATS job-board watcher: fetches postings from company career pages, filters by skill match, dedupes against Postgres, pings Telegram on genuinely new postings.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "seed": "node db/seed.js",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "pg": "^8.12.0",
+    "playwright": "^1.63.0",
+    "puppeteer": "^25.11.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "xml2js": "^0.6.2"
+  }
+}

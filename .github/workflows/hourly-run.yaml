@@ -1,0 +1,39 @@
+name: Career Watcher Hourly Run
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs at minute 0 of every hour
+  workflow_dispatch: # Allows you to manually trigger it from the GitHub UI
+
+jobs:
+  run-scrapers:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use your preferred Node version (18, 20, etc.)
+          cache: 'npm' # Speeds up runs by caching node_modules
+
+      # 3. Install dependencies from package.json / package-lock.json
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run your scripts! 
+      # (Adjust the commands below based on which scripts you actually want to run hourly)
+      - name: Run watcher scripts
+        env:
+          # This maps your GitHub Secrets to the environment variables your scripts expect
+          MY_SECRET_KEY: ${{ secrets.MY_SECRET_KEY }} 
+        run: |
+          node ashby/ashby.mjs
+          node greenhouse/greenhouse.mjs
+          node lever/lever.mjs
+          node smartrecruiters/smartrecruiters.mjs
+          node workday/workday.mjs

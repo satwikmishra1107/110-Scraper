@@ -1,0 +1,195 @@
+{
+  "Walmart": {
+    "locationCountry": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "e83ebdbd2a0a01e7e1477a8948e904c6"
+    ],
+    "jobFamily": [
+      "e83ebdbd2a0a01e6af60e95a47e972c4",
+      "24f96102afce1019026e1b0d04d90000",
+      "fc5cd4c5537f010c15b4226587ea0000",
+      "e83ebdbd2a0a017aa3a52b5b47e997c4"
+    ]
+  },
+  "Salesforce": {
+    "CF_-_REC_-_LRV_-_Job_Posting_Anchor_-_Country_from_Job_Posting_Location_Extended": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "14fa3452ec7c1011f90d0002a2100000",
+      "14fa3452ec7c1011f90cf8c9c5960000"
+    ]
+  },
+  "Adobe": {
+    "locationCountry": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "591af8b812fa10737af39db3d96eed9f",
+      "591af8b812fa10737b0e880e0e3eeee9"
+    ]
+  },
+  "Samsung": {
+    "Location_Country": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "189767dd6c9201e189e3eaa6db299dc7"
+    ]
+  },
+  "NVIDIA": {
+    "locationHierarchy1": [
+      "2fcb99c455831013ea52b82135ba3266"
+    ],
+    "jobFamilyGroup": [
+      "0c40f6bd1d8f10ae43ffaefd46dc7e78",
+      "0c40f6bd1d8f10ae43ffbd1459047e84"
+    ]
+  },
+  "Intel": {
+    "jobFamilyGroup": [
+      "ace7a3d23b7e01a0544279031a0ec85c",
+      "dc8bf79476611087d67b2cccdde47034"
+    ]
+  },
+  "Nike": {
+    "jobFamilyGroup": [
+      "cd128a2666561000bad388d2f6030002"
+    ]
+  },
+  "Mastercard": {
+    "jobFamilyGroup": [
+      "189119ebe266100103737c3d6a6e0000",
+      "0ea6171d1dd81001035429e2c6b00000",
+      "866c0ed135ff106f00587685e7483440",
+      "866c0ed135ff106f00a52e9d27783579"
+    ]
+  },
+  "Visa": {
+    "locationCountry": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "e8c806498390105c6260a580252a0363"
+    ],
+    "jobFamily": [
+      "2745bc1368021016a991f65e710a3b1e",
+      "2745bc1368021016a991a83acf5a3ad0",
+      "2745bc1368021016a991c15cf0123af2",
+      "2745bc1368021016a991fc4c76523b26",
+      "b7106cb62669100c686bc832c23b0000",
+      "03432a8f4d9c01a2bffcb3b5921d4d35",
+      "2745bc1368021016a991b40fb9b23ae0",
+      "ad45ef80fd47018bd5538fe7856817d3",
+      "31f1c52f685c018679c336da4b46da8e",
+      "ad45ef80fd4701f3e09a4bdd856804d3",
+      "2745bc1368021016a991f4f1f08a3b1c",
+      "2745bc1368021016a991bcdde8023aec"
+    ]
+  },
+  "Morgan Stanley": {
+    "Location_Country": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "e38d1cf2ff5a10014d19aa66ad230000",
+      "96af745083d401ecd47812d07856070d",
+      "5a72a211d621102b112d24a4388ddf84",
+      "b46569570f4b10014d292e3ae0a00000",
+      "96af745083d4016ae83caccf7856fd0c",
+      "b46569570f4b10014d294e44a67c0000",
+      "96af745083d401b2427504d07856050d",
+      "96af745083d401edc987e2cf7856010d"
+    ]
+  },
+  "Zillow": {
+    "jobFamilyGroup": [
+      "4b6600ad1be61000704d2b8e410a0000",
+      "274d1dd8b4cf1000704d748ea4200000"
+    ],
+    "jobFamily": [
+      "3f54b940644d10006fb13bab77c90000",
+      "274d1dd8b4cf10007001651c25b40000",
+      "3f54b940644d10006faf24fa55f90000",
+      "3f54b940644d10006fb1140366810000",
+      "3f54b940644d10006fb14c8061ed0000",
+      "4b6600ad1be610007003197423860000",
+      "3f54b940644d10006faf1c8f6d400000",
+      "bf82250bfd3b100070054c78731d0000",
+      "a90eab1aaed6105e8dd41df427a82ee6",
+      "3f54b940644d10006fb15c1ceed20000",
+      "3f54b940644d10006fb133db6c920000",
+      "bf82250bfd3b1000700513cc23e70000",
+      "274d1dd8b4cf1000700372bc0f1c0000"
+    ]
+  },
+  "BrowserStack": {
+    "jobFamilyGroup": [
+      "0cb9174e33c9100190f156427de80000"
+    ]
+  },
+  "F5": {
+    "locationCountry": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "CF_-_Job_Posting_Category_Extended": [
+      "ebc0867ff0da10015d4881e40be60000",
+      "ebc0867ff0da10015d48827e65f80001",
+      "19b87f57a414100316f46c781dbd0000"
+    ]
+  },
+  "BlackRock": {
+    "jobFamilyGroup": [
+      "7c29ce3598461001f7505cfee2240000",
+      "131d7f8fcf9f01d4eb1540d863509421"
+    ]
+  },
+  "Expedia": {
+    "jobFamilyGroup": [
+      "c553432013ba103b60decedc3beb2900"
+    ]
+  },
+  "JioStar": {
+    "jobFamilyGroup": [
+      "8df5dc1586541000539b236955f10000"
+    ]
+  },
+  "WellsFargo": {
+    "locationCountry": [
+      "c4f78be1a8f14da0ab49ce1162348a5e"
+    ],
+    "jobFamilyGroup": [
+      "b5c3287c76c20100b318a19542940001"
+    ],
+    "jobFamily": [
+      "6cee717ed86e0100b325200f972a0001",
+      "6cee717ed86e0100b32520aa42290002",
+      "c552daa57e621001a3012862ce310000",
+      "6cee717ed86e0100b3251f75aca70001",
+      "6cee717ed86e0100b32520aa42290000"
+    ]
+  },
+  "PayPal": {
+    "jobFamilyGroup": [
+      "b00c2f6141401001c5f81018e4210000"
+    ],
+    "jobFamilies": [
+      "aacf3285c80f1001c4c166891c570000",
+      "8e29adcff4fe1001c4d03f18a78f0000",
+      "83d6d96d27f71001c4cf81c2fb370000",
+      "787ba46799031001c4d01cbbfec20000",
+      "b00c2f6141401001c4d191682d9b0000",
+      "b00c2f6141401001c4d14eb939cf0000",
+      "18f4ea36abe801dc71e5e3846501ed03",
+      "9d8967f4ce9a01b809e958336601b004"
+    ]
+  },
+  "Cisco": {
+    "jobFamilyGroup": [
+      "2101eee3ea96016aef42a674fc016429",
+      "2101eee3ea96017b1ceba674fc016829"
+    ]
+  }
+}

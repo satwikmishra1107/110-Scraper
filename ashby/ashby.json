@@ -1,0 +1,7 @@
+[
+  { "company": "Notion", "slug": "notion" },
+  { "company": "Supabase", "slug": "supabase" },
+  { "company": "Linear", "slug": "linear" },
+  { "company": "Ramp", "slug": "ramp" },
+  { "company": "Snowflake", "slug": "snowflake" }
+]
