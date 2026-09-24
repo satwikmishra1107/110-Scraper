@@ -17,7 +17,7 @@ const MAX_PAGES = 50; // hard ceiling so a bug can't loop forever
 const STALE_PAGES_BEFORE_STOP = 2; // consecutive empty-of-recent pages before we stop
 const REQUEST_TIMEOUT_MS = 30_000;
 const FACET_CACHE_FILENAME = "./workday/workday-facets-cache.json";
-const RESULTS_OUTPUT_FILENAME = "./workday-jobs-output.json"; // temporary, until Supabase is wired up
+// const RESULTS_OUTPUT_FILENAME = "./workday-jobs-output.json"; // temporary, until Supabase is wired up
 
 // Load Companies from external JSON file
 const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
