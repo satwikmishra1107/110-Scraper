@@ -3,32 +3,23 @@ import { pathToFileURL } from "node:url";
 import "dotenv/config";
 import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet } from "../store.mjs";
 
-// --- Configuration Constants ---
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
 const GEMINI_MODEL_VERSION = "gemini-3.5-flash-lite";
 
-// Day-level dates only ("Posted Today" / "Posted Yesterday"): 1 = today + yesterday,
-// which always covers a rolling 24h window. Overlap across hourly runs is fine —
-// the DB dedupes on (company, job_id).
 const MAX_POSTING_AGE_DAYS = 1;
-const RESULTS_PER_PAGE = 20; // Workday max per page
-const MAX_PAGES = 50; // hard ceiling so a bug can't loop forever
-const STALE_PAGES_BEFORE_STOP = 2; // consecutive empty-of-recent pages before we stop
+const RESULTS_PER_PAGE = 20; 
+const MAX_PAGES = 50; 
+const STALE_PAGES_BEFORE_STOP = 2; 
 const REQUEST_TIMEOUT_MS = 30_000;
-// const RESULTS_OUTPUT_FILENAME = "./workday-jobs-output.json"; // temporary, until Supabase is wired up
 
-// Load Companies from external JSON file
 const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
 
-// --- Utility Functions ---
 const delay = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
-// Load all cached facet mappings from Supabase once at startup
 const facetCache = await loadFacetCache();
 
-// ---------- Workday API Interaction ----------
 
 async function fetchFromWorkdayApi(apiUrl, requestPayload) {
   let lastError;
@@ -45,7 +36,6 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
     } catch (error) {
-      // network drop / timeout — retry
       lastError = error;
       console.log(`  └─ Workday request failed (${error.message}) — retrying (attempt ${attempt + 1}/5)`);
       await delay(3000 * (attempt + 1));
@@ -62,7 +52,7 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
     if (!response.ok) {
       const error = new Error(`HTTP ${response.status}: ${await response.text()}`);
       error.status = response.status;
-      throw error; // not retryable (e.g. 400 = bad facet ids)
+      throw error; 
     }
 
     return response.json();
@@ -77,8 +67,6 @@ function calculateDaysSincePosting(postedDateString = "") {
   const daysMatch = lowerCaseDate.match(/(\d+)\+?\s*days?/);
   return daysMatch ? Number(daysMatch[1]) : Infinity;
 }
-
-// ---------- Data Processing & AI Facet Selection ----------
 
 function flattenFacetTree(nodes, parentParameterName = null, flatList = []) {
   for (const node of nodes || []) {
@@ -95,8 +83,19 @@ function flattenFacetTree(nodes, parentParameterName = null, flatList = []) {
   return flatList;
 }
 
-// Retries on 429 (rate limit), 5xx (overloaded/unavailable), network errors and timeouts.
-// Error messages include Gemini's own explanation so the console says WHY it failed.
+const MAX_GEMINI_RETRY_WAIT_MS = 90_000;
+
+function getGeminiRetryDelayMs(geminiError) {
+  const retryInfo = geminiError.details?.find((d) => d["@type"]?.endsWith("RetryInfo"));
+  const fromDetails = retryInfo?.retryDelay?.match(/^([\d.]+)s$/);
+  if (fromDetails) return Math.ceil(Number(fromDetails[1]) * 1000);
+ 
+  const fromMessage = geminiError.message?.match(/retry in ([\d.]+)s/i);
+  if (fromMessage) return Math.ceil(Number(fromMessage[1]) * 1000);
+ 
+  return null;
+}
+
 async function callGeminiWithRetry(prompt, maxAttempts = 4) {
   let lastError;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -116,25 +115,31 @@ async function callGeminiWithRetry(prompt, maxAttempts = 4) {
           signal: AbortSignal.timeout(60_000),
         },
       );
-
+ 
       if (response.ok) return response.json();
-
+ 
       const body = await response.text();
       let reason = body.slice(0, 300);
+      let serverRetryDelayMs = null;
       try {
-        reason = JSON.parse(body).error?.message ?? reason; // Gemini's human-readable reason
+        const parsed = JSON.parse(body).error ?? {};
+        reason = parsed.message ?? reason;
+        serverRetryDelayMs = getGeminiRetryDelayMs(parsed);
       } catch {}
       lastError = new Error(`Gemini API Error ${response.status}: ${reason}`);
-
+      lastError.retryDelayMs = serverRetryDelayMs;
+ 
       const retryable = response.status === 429 || response.status >= 500;
-      if (!retryable) throw lastError; // e.g. 400 bad request, 403 bad key — retrying won't help
+      if (!retryable) throw lastError; 
     } catch (error) {
       if (error === lastError) throw error;
       lastError = new Error(`Gemini request failed: ${error.name === "TimeoutError" ? "timed out after 60s" : error.message}`);
     }
-
+ 
     if (attempt < maxAttempts) {
-      const waitMs = 5000 * attempt; // 5s, 10s, 15s
+      const waitMs = lastError.retryDelayMs
+        ? Math.min(lastError.retryDelayMs + 1000, MAX_GEMINI_RETRY_WAIT_MS)
+        : 5000 * attempt;
       console.log(`  └─ ${lastError.message} — retrying in ${waitMs / 1000}s (attempt ${attempt}/${maxAttempts})`);
       await delay(waitMs);
     }
@@ -212,19 +217,17 @@ function toNormalizedJob(company, posting, scrapedAt) {
   return {
     source: "workday",
     company: company.name,
-    job_id: posting.externalPath, // unique key together with `company`
+    job_id: posting.externalPath, 
     title: posting.title,
     location: posting.locationsText ?? null,
     url: buildPublicJobUrl(company.url, posting.externalPath),
-    posted_label: posting.postedOn ?? null, // raw Workday text, e.g. "Posted Today"
-    posted_date: Number.isFinite(daysAgo) // approximate, day-level only
+    posted_label: posting.postedOn ?? null,
+    posted_date: Number.isFinite(daysAgo)
       ? new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10)
       : null,
     scraped_at: scrapedAt,
   };
 }
-
-// ---------- Main Scraping Logic per Company ----------
 
 async function scrapeCompany(company, scrapedAt, isRetry = false) {
   const appliedFacets = await getOrResolveFacets(company);
@@ -273,8 +276,6 @@ async function scrapeCompany(company, scrapedAt, isRetry = false) {
   return collectedJobs;
 }
 
-// ---------- Main Execution & Reporting ----------
-
 export async function runAll() {
   console.log(
     `\nLoaded ${COMPANIES.length} companies from workday.json.\nStarting Job Scraper...\n`,
@@ -312,7 +313,6 @@ export async function runAll() {
   return { source: "workday", scraped_at: scrapedAt, jobs: allRecentJobs, report: statusReport };
 }
 
-// Run standalone: `node workday.mjs`
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const result = await runAll();
 
@@ -320,17 +320,8 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.table(result.report);
   console.log(`\nTotal jobs collected across all working platforms: ${result.jobs.length}\n`);
 
-  // Print the actual job data (not just counts) so you can see it before Supabase is wired up
-  // console.log("=== JOBS (JSON) ===");
-  // console.log(JSON.stringify(result.jobs, null, 2));
-
-  // Also save it to a file so you can inspect/diff it between runs
-  // fs.writeFileSync(RESULTS_OUTPUT_FILENAME, JSON.stringify(result, null, 2));
-  // console.log(`\nSaved full result to ${RESULTS_OUTPUT_FILENAME}`);
-
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
-  // console.table(newJobs.map(({ company, title, location, url }) => ({ company, title, location, url })));
 
-  if (result.report.every((r) => !r.ok)) process.exitCode = 1; // let a scheduler see total failure
+  if (result.report.every((r) => !r.ok)) process.exitCode = 1; 
 }
