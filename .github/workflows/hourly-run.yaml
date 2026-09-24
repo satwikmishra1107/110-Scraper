@@ -34,3 +34,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           node workday/workday.mjs
+          node greenhouse/greenhouse.mjs
+          node lever/lever.mjs
+          node ashby/ashby.mjs
+          node smartrecruiters/smartrecruiters.mjs
