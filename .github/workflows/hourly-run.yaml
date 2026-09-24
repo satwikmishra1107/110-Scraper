@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use your preferred Node version (18, 20, etc.)
+          node-version: '22' # Use your preferred Node version (18, 20, etc.)
           cache: 'npm' # Speeds up runs by caching node_modules
 
       # 3. Install dependencies from package.json / package-lock.json
