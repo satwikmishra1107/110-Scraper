@@ -8,9 +8,6 @@ const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
 const GEMINI_MODEL_VERSION = "gemini-3.5-flash-lite";
 
-// Day-level dates only ("Posted Today" / "Posted Yesterday"): 1 = today + yesterday,
-// which always covers a rolling 24h window. Overlap across hourly runs is fine —
-// the DB dedupes on (company, job_id).
 const MAX_POSTING_AGE_DAYS = 1;
 const RESULTS_PER_PAGE = 20; // Workday max per page
 const MAX_PAGES = 50; // hard ceiling so a bug can't loop forever
