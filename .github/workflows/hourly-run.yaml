@@ -32,8 +32,4 @@ jobs:
           # This maps your GitHub Secrets to the environment variables your scripts expect
           MY_SECRET_KEY: ${{ secrets.MY_SECRET_KEY }} 
         run: |
-          node ashby/ashby.mjs
-          node greenhouse/greenhouse.mjs
-          node lever/lever.mjs
-          node smartrecruiters/smartrecruiters.mjs
           node workday/workday.mjs
