@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
-import { saveJobsAndGetNew } from "./store.mjs";
+import { saveJobsAndGetNew, saveRun } from "./store.mjs";
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const COMPANY_DELAY_MS = 500;
@@ -13,12 +13,41 @@ export const MAX_POSTING_AGE_DAYS = 1;
 const NOW = Date.now();
 
 const SD_KEYWORDS = [
-  "software", "engineer", "engineering", "technical", "developer", "backend", "frontend",
-  "back-end", "front-end", "full stack", "full-stack", "system", "architect", "ui", "ux",
-  "sde", "sdet", "react", "node", "java", "c++", "typescript", "mongo",
+  "software",
+  "engineer",
+  "engineering",
+  "technical",
+  "developer",
+  "backend",
+  "frontend",
+  "back-end",
+  "front-end",
+  "full stack",
+  "full-stack",
+  "system",
+  "architect",
+  "ui",
+  "ux",
+  "sde",
+  "sdet",
+  "react",
+  "node",
+  "java",
+  "c++",
+  "typescript",
+  "mongo",
 ];
 const INDIA_LOCATIONS = [
-  "india", "bengaluru", "bangalore", "hyderabad", "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai",
+  "india",
+  "bengaluru",
+  "bangalore",
+  "hyderabad",
+  "mumbai",
+  "pune",
+  "gurgaon",
+  "noida",
+  "delhi",
+  "chennai",
 ];
 
 export function isIndiaLocation(locationName) {
@@ -32,7 +61,8 @@ export function isSoftwareDomain(title, department) {
   const titleLower = (title || "").toLowerCase();
   const deptLower = (department || "").toLowerCase();
   if (SD_KEYWORDS.some((kw) => titleLower.includes(kw))) return true;
-  if (deptLower.includes("engineering") || deptLower.includes("infrastructure")) return true;
+  if (deptLower.includes("engineering") || deptLower.includes("infrastructure"))
+    return true;
   return false;
 }
 
@@ -41,7 +71,8 @@ export const daysSince = (postedAt) =>
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const loadCompanies = (path) => JSON.parse(fs.readFileSync(path, "utf8"));
+export const loadCompanies = (path) =>
+  JSON.parse(fs.readFileSync(path, "utf8"));
 
 // GET JSON with timeout; retries network errors, 429 and 5xx. Other statuses (404 = bad slug) fail fast.
 export async function fetchJson(url, maxAttempts = 4) {
@@ -53,7 +84,11 @@ export async function fetchJson(url, maxAttempts = 4) {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (res.ok) return await res.json();
-      lastError = new Error(res.status === 404 ? "HTTP 404 - bad slug or private board" : `HTTP ${res.status}`);
+      lastError = new Error(
+        res.status === 404
+          ? "HTTP 404 - bad slug or private board"
+          : `HTTP ${res.status}`,
+      );
       lastError.status = res.status;
       if (res.status !== 429 && res.status < 500) throw lastError;
     } catch (error) {
@@ -61,15 +96,28 @@ export async function fetchJson(url, maxAttempts = 4) {
       lastError = error;
     }
     if (attempt < maxAttempts) {
-      console.log(`  └─ ${lastError.message} — retrying (attempt ${attempt}/${maxAttempts})`);
+      console.log(
+        `  └─ ${lastError.message} — retrying (attempt ${attempt}/${maxAttempts})`,
+      );
       await delay(2000 * attempt);
     }
   }
-  throw new Error(`${lastError.message} (gave up after ${maxAttempts} attempts)`);
+  throw new Error(
+    `${lastError.message} (gave up after ${maxAttempts} attempts)`,
+  );
 }
 
 // Same columns as workday.mjs's toNormalizedJob().
-export function toRow({ source, company, jobId, title, location, url, postedAt, scrapedAt }) {
+export function toRow({
+  source,
+  company,
+  jobId,
+  title,
+  location,
+  url,
+  postedAt,
+  scrapedAt,
+}) {
   const iso = new Date(postedAt).toISOString();
   return {
     source,
@@ -86,7 +134,9 @@ export function toRow({ source, company, jobId, title, location, url, postedAt, 
 
 // Mirrors workday.mjs runAll(): same return shape and report rows.
 export async function runSource(source, companies, scrapeCompany) {
-  console.log(`\nLoaded ${companies.length} companies for ${source}.\nStarting ${source} scraper...\n`);
+  console.log(
+    `\nLoaded ${companies.length} companies for ${source}.\nStarting ${source} scraper...\n`,
+  );
   const scrapedAt = new Date().toISOString();
   const report = [];
   const jobs = [];
@@ -96,10 +146,20 @@ export async function runSource(source, companies, scrapeCompany) {
     try {
       const found = await scrapeCompany(company, scrapedAt);
       jobs.push(...found);
-      report.push({ company: company.company, ok: true, count: found.length, error: null });
+      report.push({
+        company: company.company,
+        ok: true,
+        count: found.length,
+        error: null,
+      });
       console.log(`  └─ Success: Found ${found.length} recent jobs.\n`);
     } catch (error) {
-      report.push({ company: company.company, ok: false, count: 0, error: error.message });
+      report.push({
+        company: company.company,
+        ok: false,
+        count: 0,
+        error: error.message,
+      });
       console.log(`  └─ Failed: ${error.message}\n`);
     }
     await delay(COMPANY_DELAY_MS);
@@ -119,5 +179,8 @@ export async function runStandalone(metaUrl, runAll) {
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
-  if (result.report.length && result.report.every((r) => !r.ok)) process.exitCode = 1;
+  await saveRun(result.source, result.report);
+
+  if (result.report.length && result.report.every((r) => !r.ok))
+    process.exitCode = 1;
 }

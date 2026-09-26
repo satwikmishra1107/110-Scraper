@@ -49,3 +49,20 @@ export async function saveJobsAndGetNew(jobs) {
   }
   return newJobs;
 }
+
+// ---------- Scraper runs (table: runs) ----------
+
+// Called once at the end of a run. Logs on failure instead of throwing,
+// so a failed health-log insert never crashes the scraper.
+// GITHUB_RUN_ID is shared by every step of one workflow run; it's missing on local runs (→ null).
+export async function saveRun(source, companyResults) {
+  const githubRunId = process.env.GITHUB_RUN_ID ? Number(process.env.GITHUB_RUN_ID) : null;
+  console.log(githubRunId);
+  const { error } = await supabase.from("runs").insert({
+    run_id: githubRunId,
+    source,
+    scraped_at: new Date().toISOString(),
+    report: companyResults,
+  });
+  if (error) console.error(`Supabase run insert failed (${source}): ${error.message}`);
+}

@@ -9,6 +9,12 @@ jobs:
   run-scrapers:
     runs-on: ubuntu-latest
 
+    # Shared by every step below
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
     steps:
       # 1. Checkout your code
       - name: Checkout repository
@@ -25,16 +31,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. Run your scripts! 
-      # (Adjust the commands below based on which scripts you actually want to run hourly)
-      - name: Run watcher scripts
-        env:
-          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          node workday/workday.mjs
-          node greenhouse/greenhouse.mjs
-          node lever/lever.mjs
-          node ashby/ashby.mjs
-          node smartrecruiters/smartrecruiters.mjs
+      # 4. One step per scraper. `!cancelled()` = run even if an earlier scraper failed.
+      - name: Run Workday scraper
+        if: ${{ !cancelled() }}
+        run: node workday/workday.mjs
+
+      - name: Run Greenhouse scraper
+        if: ${{ !cancelled() }}
+        run: node greenhouse/greenhouse.mjs
+
+      - name: Run Lever scraper
+        if: ${{ !cancelled() }}
+        run: node lever/lever.mjs
+
+      - name: Run Ashby scraper
+        if: ${{ !cancelled() }}
+        run: node ashby/ashby.mjs
+
+      - name: Run SmartRecruiters scraper
+        if: ${{ !cancelled() }}
+        run: node smartrecruiters/smartrecruiters.mjs
