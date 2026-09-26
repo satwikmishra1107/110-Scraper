@@ -134,6 +134,15 @@ export async function saveJobsAndGetNew(jobs) {
   return [...newJobs, ...updatedJobs];
 }
 
+// ---------- Hidden titles (table: hidden_titles) ----------
+
+// Titles you marked "Always hide this title" on the dashboard, already normalized there.
+export async function loadHiddenTitles() {
+  const { data, error } = await supabase.from("hidden_titles").select("title");
+  if (error) throw new Error(`Supabase hidden titles load failed: ${error.message}`);
+  return new Set(data.map((row) => row.title));
+}
+
 // ---------- Scraper runs (table: runs) ----------
 
 // Called once at the end of a run. Logs on failure instead of throwing,

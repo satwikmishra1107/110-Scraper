@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
 import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet, saveRun } from "../store.mjs";
+import { sendTelegramAlerts } from "../telegram.mjs";
 
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
@@ -323,6 +324,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
+  await sendTelegramAlerts(result.source, newJobs);
   await saveRun(result.source, result.report);
 
   if (result.report.every((r) => !r.ok)) process.exitCode = 1; 

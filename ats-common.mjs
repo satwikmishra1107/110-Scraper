@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { pathToFileURL } from "node:url";
 import "dotenv/config";
 import { saveJobsAndGetNew, saveRun } from "./store.mjs";
+import { sendTelegramAlerts } from "./telegram.mjs";
 
 const REQUEST_TIMEOUT_MS = 30_000;
 const COMPANY_DELAY_MS = 500;
@@ -179,6 +180,7 @@ export async function runStandalone(metaUrl, runAll) {
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
+  await sendTelegramAlerts(result.source, newJobs);
   await saveRun(result.source, result.report);
 
   if (result.report.length && result.report.every((r) => !r.ok))
