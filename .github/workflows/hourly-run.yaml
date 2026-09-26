@@ -1,9 +1,9 @@
 name: Career Watcher Hourly Run
 
 on:
-  schedule:
-    - cron: '0 * * * *' # Runs at minute 0 of every hour
-  workflow_dispatch: # Allows you to manually trigger it from the GitHub UI
+  # Started every hour by the Cloudflare Worker (cron-worker/), or by hand from the Actions tab.
+  # No `schedule:` here — GitHub's own cron fired irregularly, and keeping both would run twice an hour.
+  workflow_dispatch:
 
 jobs:
   run-scrapers:
