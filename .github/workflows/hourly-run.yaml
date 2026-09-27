@@ -53,3 +53,7 @@ jobs:
       - name: Run SmartRecruiters scraper
         if: ${{ !cancelled() }}
         run: node smartrecruiters/smartrecruiters.mjs
+
+      - name: Run Custom scraper
+        if: ${{ !cancelled() }}
+        run: node custom/run-all.mjs
