@@ -111,8 +111,8 @@ export async function saveJobsAndGetNew(jobs) {
     const storedPostedDate = storedPostedDates.get(jobKey);
     const minimumGapDays = MIN_REPOST_GAP_DAYS[row.source] ?? DEFAULT_MIN_REPOST_GAP_DAYS;
     if (row.posted_date && storedPostedDate && daysBetween(storedPostedDate, row.posted_date) >= minimumGapDays) {
-      // New first_seen_at = the board counts it as found now, so it moves back to the top
-      rowsToMarkUpdated.push({ ...row, is_update: true, first_seen_at: new Date().toISOString() });
+      // first_seen_at stays as the true first-seen time; reposted_at is what moves it back up the board
+      rowsToMarkUpdated.push({ ...row, is_update: true, reposted_at: new Date().toISOString() });
     }
     // otherwise: same job, same date → nothing to do
   }
