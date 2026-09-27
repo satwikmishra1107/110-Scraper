@@ -160,13 +160,27 @@ export async function loadHiddenTitles() {
 // Called once at the end of a run. Logs on failure instead of throwing,
 // so a failed health-log insert never crashes the scraper.
 // GITHUB_RUN_ID is shared by every step of one workflow run; it's missing on local runs (→ null).
-export async function saveRun(source, companyResults) {
+// savedJobs = what saveJobsAndGetNew() returned; each company's entry gets its new / updated counts.
+export async function saveRun(source, companyResults, savedJobs = []) {
   const githubRunId = process.env.GITHUB_RUN_ID ? Number(process.env.GITHUB_RUN_ID) : null;
+
+  const countsByCompany = new Map();
+  for (const savedJob of savedJobs) {
+    const companyCounts = countsByCompany.get(savedJob.company) ?? { newCount: 0, updatedCount: 0 };
+    if (savedJob.is_update) companyCounts.updatedCount += 1;
+    else companyCounts.newCount += 1;
+    countsByCompany.set(savedJob.company, companyCounts);
+  }
+  const reportWithCounts = companyResults.map((companyResult) => ({
+    ...companyResult,
+    ...(countsByCompany.get(companyResult.company) ?? { newCount: 0, updatedCount: 0 }),
+  }));
+
   const { error } = await supabase.from("runs").insert({
     run_id: githubRunId,
     source,
     scraped_at: new Date().toISOString(),
-    report: companyResults,
+    report: reportWithCounts,
   });
   if (error) console.error(`Supabase run insert failed (${source}): ${error.message}`);
 }
