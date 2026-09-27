@@ -1,5 +1,9 @@
 // custom/delhivery.mjs | run: node custom/delhivery.mjs
 import { pathToFileURL } from "node:url";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
 const MAX_POSTING_AGE_DAYS = 1;
@@ -7,8 +11,10 @@ const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 20;
 const REQUEST_TIMEOUT_MS = 15000;
 
-// Darwinbox API endpoint used by Delhivery
-const URL = "https://delhivery.darwinbox.in/ms/candidateapi/job/alljobs?companyId=main";
+// The frontend page we visit first, so Cloudflare accepts the browser (same approach as airtel.mjs)
+const DELHIVERY_CAREERS_URL = "https://delhivery.darwinbox.in/ms/candidate/careers";
+// The API we then call from inside that page. Relative, so it goes to the same site the page is on
+const API_URL = "/ms/candidateapi/job/alljobs?companyId=main";
 
 const SD_KEYWORDS = [
   "software", "engineer", "engineering", "technical", "developer",
@@ -73,97 +79,131 @@ async function scrapeDelhivery() {
   const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
   let totalJobsChecked = 0;
 
-  for (let page = 1; page <= MAX_PAGES_TO_FETCH; page++) {
-    log(`   Fetching page ${page} from Delhivery (Darwinbox API)...`);
+  log(`   Launching stealth browser to get past Cloudflare...`);
 
-    // The exact payload from your screenshot, but dynamic
-    const payload = {
-      companyId: "main",
-      page: page,
-      sort_option: "new",
-      limit: JOBS_PER_PAGE
-    };
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
-    const response = await fetch(URL, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} while fetching Delhivery API`);
-    }
+    log(`   Opening Delhivery careers page...`);
+    // Wait for the network to settle so Cloudflare has finished and set its cookies
+    await page.goto(DELHIVERY_CAREERS_URL, { waitUntil: "networkidle2", timeout: 45000 })
+      .catch(gotoError => log(`   ⚠️ goto warning: ${gotoError.message}`));
 
-    const json = await response.json();
-    // A missing data array means the API shape changed; fail loudly instead of reporting 0 jobs
-    if (!Array.isArray(json.data)) {
-      throw new Error(`Unexpected API response on page ${page}: no data array`);
-    }
-    const jobs = json.data;
+    for (let pageNumber = 1; pageNumber <= MAX_PAGES_TO_FETCH; pageNumber++) {
+      log(`   Fetching page ${pageNumber} via in-browser API request...`);
+
+      // This function runs INSIDE Chromium, so the request carries the browser's cookies and fingerprint.
+      // It returns the status and raw text instead of calling res.json(): if Cloudflare still blocks us,
+      // res.json() on its HTML page would only give "Unexpected token <", which hides the real reason.
+      const apiResult = await page.evaluate(async (apiEndpoint, requestedPage, limitAmount, timeoutMs) => {
+        try {
+          const res = await fetch(apiEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({
+              companyId: "main",
+              page: requestedPage,
+              sort_option: "new",
+              limit: limitAmount,
+            }),
+            signal: AbortSignal.timeout(timeoutMs),
+          });
+          return { status: res.status, ok: res.ok, server: res.headers.get("server"), bodyText: await res.text() };
+        } catch (fetchError) {
+          return { fetchError: fetchError.message };
+        }
+      }, API_URL, pageNumber, JOBS_PER_PAGE, REQUEST_TIMEOUT_MS);
+
+      if (apiResult.fetchError) {
+        throw new Error(`In-browser fetch failed on page ${pageNumber}: ${apiResult.fetchError}`);
+      }
+
+      if (!apiResult.ok) {
+        // Say who refused and what they sent back, so the health tab shows more than just "403"
+        const pageTitle = apiResult.bodyText.match(/<title>([^<]*)<\/title>/i)?.[1]?.trim();
+        const responsePreview = pageTitle || apiResult.bodyText.replace(/\s+/g, " ").slice(0, 200);
+        throw new Error(`HTTP ${apiResult.status} while fetching Delhivery API (${apiResult.server || "unknown server"}): ${responsePreview}`);
+      }
+
+      const jsonResponse = JSON.parse(apiResult.bodyText);
+
+      // A missing data array means the API shape changed; fail loudly instead of reporting 0 jobs
+      if (!Array.isArray(jsonResponse.data)) {
+        throw new Error(`Unexpected API response on page ${pageNumber}: no data array`);
+      }
+      const jobs = jsonResponse.data;
     
-    log(`   Page ${page} returned ${jobs.length} jobs`);
+      log(`   Page ${pageNumber} returned ${jobs.length} jobs`);
     
-    if (jobs.length === 0) break;
+      if (jobs.length === 0) break;
 
-    let foundOldJob = false;
+      let foundOldJob = false;
 
-    for (const job of jobs) {
-      totalJobsChecked++;
+      for (const job of jobs) {
+        totalJobsChecked++;
 
-      const daysSincePosted = getDaysSincePosted(job.posted_on, currentTime);
+        const daysSincePosted = getDaysSincePosted(job.posted_on, currentTime);
 
-      // Jobs are sorted by "new", so we break when we hit old jobs
-      if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
-        skipCounts.tooOld++;
-        foundOldJob = true;
-        continue;
-      }
+        // Jobs are sorted by "new", so we break when we hit old jobs
+        if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
+          skipCounts.tooOld++;
+          foundOldJob = true;
+          continue;
+        }
 
-      const locationText = parseDarwinboxLocation(job);
+        const locationText = parseDarwinboxLocation(job);
 
-      if (!isIndiaLocation(locationText, job.country)) {
-        skipCounts.notIndia++;
-        continue;
-      }
+        if (!isIndiaLocation(locationText, job.country)) {
+          skipCounts.notIndia++;
+          continue;
+        }
 
-      const jobTitle = job.title || job.designation_name;
-      const department = job.department_name_only || job.department_name;
+        const jobTitle = job.title || job.designation_name;
+        const department = job.department_name_only || job.department_name;
 
-      if (!isSoftwareJob(jobTitle, department)) {
-        skipCounts.notSoftware++;
-        continue;
-      }
+        if (!isSoftwareJob(jobTitle, department)) {
+          skipCounts.notSoftware++;
+          continue;
+        }
       
-      const jobUrl = `https://delhivery.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
+        const jobUrl = `https://delhivery.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
 
-      matchingJobs.push({
-        id: String(job.id),
-        company: "Delhivery",
-        title: jobTitle,
-        department: department || "N/A",
-        location: locationText,
-        daysSincePosted: daysSincePosted,
-        url: jobUrl
-      });
+        matchingJobs.push({
+          id: String(job.id),
+          company: "Delhivery",
+          title: jobTitle,
+          department: department || "N/A",
+          location: locationText,
+          daysSincePosted: daysSincePosted,
+          url: jobUrl
+        });
+      }
+
+      if (foundOldJob) {
+        log(`   Reached jobs older than ${MAX_POSTING_AGE_DAYS} days. Stopping pagination.`);
+        break;
+      }
+
+      // Stop if the API returns fewer jobs than the limit (end of results)
+      // (Note: if Delhivery forces a max limit of 10 despite us asking for 50, it will loop normally)
+      if (jobs.length < (jsonResponse.limit || JOBS_PER_PAGE)) {
+        break;
+      }
+
+      await delay(500); // Polite delay between pages
     }
-
-    if (foundOldJob) {
-      log(`   Reached jobs older than ${MAX_POSTING_AGE_DAYS} days. Stopping pagination.`);
-      break;
-    }
-
-    // Stop if the API returns fewer jobs than the limit (end of results)
-    // (Note: if Delhivery forces a max limit of 10 despite us asking for 50, it will loop normally)
-    if (jobs.length < (json.limit || JOBS_PER_PAGE)) {
-      break;
-    }
-
-    await delay(500); // Polite delay between pages
+  } finally {
+    log(`   Closing browser...`);
+    await browser.close();
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);

@@ -4,6 +4,11 @@ import { pathToFileURL } from "node:url";
 const MAX_POSTING_AGE_DAYS = 1;
 const MAX_PAGES_TO_FETCH = 40;
 const REQUEST_TIMEOUT_MS = 20000;
+const MAX_ATTEMPTS_PER_PAGE = 3;
+// Every page is fetched (the "recent" sort isn't reliable), so go slower instead of fetching less
+const DELAY_BETWEEN_PAGES_MS = 5000;
+// Microsoft's 429 has no Retry-After, so wait this long per attempt (30s, then 60s) before retrying
+const RATE_LIMIT_COOLDOWN_MS = 30000;
 
 const SOFTWARE_PATTERN =
   /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
@@ -111,7 +116,7 @@ async function scrapeMicrosoft() {
     let bodyText;
     let success = false;
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_PAGE; attempt++) {
       try {
         let response;
         ({ response, bodyText } = await fetchWithLogging(
@@ -122,7 +127,15 @@ async function scrapeMicrosoft() {
 
         if (response.status === 429) {
           const retryAfterHeader = response.headers.get("retry-after");
-          const cooldownMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : jitter(attempt * 3000);
+          const retryAfterSeconds = Number(retryAfterHeader);
+          // Retry-After can also be a date instead of seconds; Number() then gives NaN,
+          // and delay(NaN) waits 0ms. Only trust it when it's a real number.
+          // Last attempt: no point waiting, we're about to give up anyway
+          if (attempt === MAX_ATTEMPTS_PER_PAGE) break;
+
+          const cooldownMs = retryAfterHeader && Number.isFinite(retryAfterSeconds)
+            ? retryAfterSeconds * 1000
+            : jitter(attempt * RATE_LIMIT_COOLDOWN_MS);
           log(`     ⚠️ 429 Rate Limited. Cooling down for ${(cooldownMs / 1000).toFixed(1)}s...`);
           await delay(cooldownMs);
           continue;
@@ -133,7 +146,7 @@ async function scrapeMicrosoft() {
         break;
       } catch (err) {
         log(`     ⚠️ Attempt ${attempt} failed: ${err.message}`);
-        if (attempt === 3) throw err;
+        if (attempt === MAX_ATTEMPTS_PER_PAGE) throw err;
         await delay(jitter(attempt * 2000)); // back off on non-429 failures too, not just 429s
       }
     }
@@ -191,7 +204,7 @@ async function scrapeMicrosoft() {
     }
 
     startOffset += positions.length;
-    if (page < MAX_PAGES_TO_FETCH - 1) await delay(jitter(2500));
+    if (page < MAX_PAGES_TO_FETCH - 1) await delay(jitter(DELAY_BETWEEN_PAGES_MS));
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);
