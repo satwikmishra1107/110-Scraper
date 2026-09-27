@@ -1,7 +1,7 @@
 // custom/oracle.mjs | run: node custom/oracle.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 25;
 const MAX_PAGES_TO_FETCH = 20; 
 const REQUEST_TIMEOUT_MS = 15000;
@@ -78,7 +78,12 @@ async function scrapeOracle() {
     }
 
     const data = await response.json();
-    const firstItem = data.items?.[0];
+
+    // A missing items array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.items)) {
+      throw new Error(`Unexpected API response on page ${pageNumber + 1}: no items array`);
+    }
+    const firstItem = data.items[0];
     const jobsOnThisPage = firstItem?.requisitionList || [];
 
     if (pageNumber === 0 && firstItem?.TotalJobsCount !== undefined) {
@@ -114,6 +119,7 @@ async function scrapeOracle() {
       }
 
       matchingJobs.push({
+        id: String(job.Id),
         company: "Oracle",
         title: job.Title,
         department: "N/A", // Oracle HCM rarely provides a clean department field at the top level
@@ -166,7 +172,7 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
@@ -174,7 +180,7 @@ async function main() {
     // Conditionally render department only if it's not "N/A"
     const deptString = job.department !== "N/A" ? ` (${job.department})` : "";
 
-    console.log(`${i + 1}. [${job.company}] ${job.title}${deptString}`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title}${deptString}`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -183,4 +189,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

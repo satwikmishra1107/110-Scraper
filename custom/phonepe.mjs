@@ -1,12 +1,17 @@
 // custom/phonepe.mjs | run: node custom/phonepe.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://www.phonepe.com/apollo/job-postings/latest.json";
 
 const SOFTWARE_PATTERN =
   /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+
+const INDIA_LOCATIONS = [
+  "india", "bengaluru", "bangalore", "hyderabad",
+  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
+];
 
 function log(message) {
   const timeText = new Date().toLocaleTimeString();
@@ -15,6 +20,15 @@ function log(message) {
 
 function isSoftwareJob(title) {
   return SOFTWARE_PATTERN.test(title || "");
+}
+
+// There was no location filter at all before, so any non-India posting went straight through
+// Whole words only, so "Indianapolis, Indiana" does not count as India
+const INDIA_LOCATION_REGEX = new RegExp(`\\b(?:${INDIA_LOCATIONS.join("|")})\\b`, "i");
+
+function isIndiaLocation(locationText) {
+  if (!locationText) return false;
+  return INDIA_LOCATION_REGEX.test(String(locationText));
 }
 
 function parseDotNetDate(dateStr) {
@@ -33,7 +47,7 @@ function getDaysSincePosted(dateStr, currentTimeInMilliseconds) {
 async function scrapePhonePe() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0, notPublic: 0 };
+  const skipCounts = { tooOld: 0, notSoftware: 0, notPublic: 0, notIndia: 0 };
   
   log(`   Fetching all jobs from PhonePe...`);
 
@@ -48,7 +62,11 @@ async function scrapePhonePe() {
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching PhonePe API`);
 
   const data = await response.json();
-  const jobs = data.results || [];
+  // A missing results array means the API shape changed; fail loudly instead of reporting 0 jobs
+  if (!Array.isArray(data.results)) {
+    throw new Error(`Unexpected API response: no results array`);
+  }
+  const jobs = data.results;
   
   log(`   Found ${jobs.length} total jobs in system`);
 
@@ -56,6 +74,11 @@ async function scrapePhonePe() {
     const isPublic = job.status === "PUBLIC" || job.status === "PUBLISHED";
     if (!isPublic || !job.applyUrl) {
       skipCounts.notPublic++;
+      continue;
+    }
+
+    if (!isIndiaLocation(job.location)) {
+      skipCounts.notIndia++;
       continue;
     }
 
@@ -72,17 +95,18 @@ async function scrapePhonePe() {
     }
 
     matchingJobs.push({
+      id: String(job.id || job.applyUrl),
       company: "PhonePe",
       title: job.title,
       department: job.department || "N/A",
-      location: job.location || "India",
+      location: job.location,
       daysSincePosted: daysSincePosted,
       url: job.applyUrl
     });
   }
 
   log(`   Checked ${jobs.length} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notPublic} internal`);
+  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notPublic} internal, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
@@ -108,9 +132,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -119,4 +143,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

@@ -1,7 +1,7 @@
 // custom/lenskart.mjs | run: node custom/lenskart.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 
 // AInterviews API endpoint used by Lenskart
@@ -73,7 +73,11 @@ async function scrapeLenskart() {
   }
 
   const json = await response.json();
-  const jobs = json.jobs || [];
+  // A missing jobs array means the API shape changed; fail loudly instead of reporting 0 jobs
+  if (!Array.isArray(json.jobs)) {
+    throw new Error(`Unexpected API response: no jobs array`);
+  }
+  const jobs = json.jobs;
   
   log(`   API reports ${jobs.length} total jobs in system`);
 
@@ -99,6 +103,7 @@ async function scrapeLenskart() {
     const jobUrl = job.apply_url ? `https://ainterviews.com${job.apply_url}` : `https://ainterviews.com/job_board/lenskart_ho/job/${job.id}/`;
 
     matchingJobs.push({
+      id: String(job.id),
       company: "Lenskart",
       title: job.title,
       department: job.category || "N/A",
@@ -136,12 +141,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -150,4 +155,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

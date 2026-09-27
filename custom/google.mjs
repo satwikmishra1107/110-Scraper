@@ -108,14 +108,26 @@ async function scrapeGoogle() {
             }
           }
 
-          if (jobCard) {
-            const lines = jobCard.innerText.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
-            const locationLine = lines.find((line) => line.includes("India")) || "India";
-            const aTag = jobCard.querySelector("a");
-            const url = aTag ? aTag.href : window.location.href;
+          if (!jobCard) return;
 
-            jobData.push({ title, location: locationLine, url });
-          }
+          // Only links that point at a job's detail page count, not any first <a> in the card
+          const jobLinks = [...jobCard.querySelectorAll('a[href*="/jobs/results/"]')];
+          const distinctJobIds = new Set(
+            jobLinks
+              .map((jobLink) => jobLink.href.match(/\/jobs\/results\/(\d+)/)?.[1])
+              .filter(Boolean),
+          );
+
+          // 0 ids: no job link at all. 2+ ids: this "card" is really the whole list container,
+          // reached from a page heading that isn't a job title. Skip both.
+          if (distinctJobIds.size !== 1) return;
+
+          const jobId = [...distinctJobIds][0];
+          const jobLink = jobLinks.find((candidateLink) => candidateLink.href.includes(`/jobs/results/${jobId}`));
+          const lines = jobCard.innerText.split("\n").map((line) => line.trim()).filter((line) => line.length > 0);
+          const locationLine = lines.find((line) => line.includes("India")) || "India";
+
+          jobData.push({ id: jobId, title, location: locationLine, url: jobLink.href });
         });
 
         return jobData;
@@ -125,14 +137,13 @@ async function scrapeGoogle() {
 
       for (const job of extractedJobs) {
         totalJobsChecked++;
-        const jobIdentifier = `${job.title} - ${job.url}`;
-
-        if (seenJobs.has(jobIdentifier)) {
+        // The same job can appear twice (e.g. title link and "Learn more" link), so dedupe on its id
+        if (seenJobs.has(job.id)) {
           skipCounts.duplicate++;
           continue;
         }
 
-        seenJobs.add(jobIdentifier);
+        seenJobs.add(job.id);
         newJobsFoundOnPage++;
 
         if (!isSoftwareJob(job.title)) {
@@ -141,11 +152,12 @@ async function scrapeGoogle() {
         }
 
         matchingJobs.push({
+          id: job.id,
           company: "Google",
           title: job.title,
-          department: "Engineering / gTech",
+          department: null, // not shown on the results page; null instead of a made-up value
           location: job.location.replace("Google | ", ""),
-          daysSincePosted: "Recent (Sorted by Date)",
+          daysSincePosted: null, // not shown on the results page
           url: job.url,
         });
       }
@@ -193,13 +205,13 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     // Handle string-based visual dates instead of numbers
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : (job.daysSincePosted || "Recent");
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department || "N/A"})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -208,4 +220,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

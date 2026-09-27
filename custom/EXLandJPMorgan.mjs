@@ -1,7 +1,7 @@
-// custom/oracle-hcm.mjs | run: node custom/oracle-hcm.mjs
+// custom/EXLandJPMorgan.mjs | run: node custom/EXLandJPMorgan.mjs
 
 // ---------- Settings you can change ----------
-const MAX_POSTING_AGE_DAYS = 7;   // change this to 1 later for the last 24 hours
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 20;    // safety limit so the loop can never run forever
 const REQUEST_TIMEOUT_MS = 15000;
@@ -63,7 +63,12 @@ async function fetchOnePageOfJobs(company, pageNumber) {
   }
 
   const responseData = await response.json();
-  const firstItem = responseData.items?.[0];
+
+  // A missing items array means the API shape changed; fail loudly instead of reporting 0 jobs
+  if (!Array.isArray(responseData.items)) {
+    throw new Error(`Unexpected API response on page ${pageNumber + 1}: no items array`);
+  }
+  const firstItem = responseData.items[0];
   return firstItem?.requisitionList ?? [];
 }
 
@@ -105,7 +110,7 @@ async function scrapeOneCompany(company) {
       }
 
       matchingJobs.push({
-        id: job.Id,
+        id: String(job.Id),
         company: company.name,
         title: job.Title,
         location: job.PrimaryLocation || "India",
@@ -182,4 +187,4 @@ async function main() {
   }
 }
 
-await main();
+await main();

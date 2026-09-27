@@ -94,15 +94,19 @@ async function scrapeMeta() {
           const title = h3 ? h3.innerText.trim() : link.innerText.split('\n')[0].trim();
           
           if (!title) return; 
+
+          // The job id is part of the link: /profile/job_details/<id>
+          const jobId = link.href.match(/\/profile\/job_details\/(\d+)/)?.[1];
+          if (!jobId) return;
           
-          const lines = link.innerText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+          const lines = link.innerText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
           const locationLine = lines.find(line => 
             line.includes("India") || line.includes("Bengaluru") || line.includes("Bangalore") || 
             line.includes("Gurgaon") || line.includes("New Delhi") ||
             line.includes("Hyderabad") || line.includes("Mumbai")
           ) || "India";
           
-          jobData.push({ title, location: locationLine, url: link.href });
+          jobData.push({ id: jobId, title, location: locationLine, url: link.href });
         });
         
         return jobData;
@@ -112,14 +116,12 @@ async function scrapeMeta() {
 
       for (const job of extractedJobs) {
         totalJobsChecked++;
-        const jobIdentifier = `${job.title} - ${job.url}`;
-        
-        if (seenJobs.has(jobIdentifier)) {
+        if (seenJobs.has(job.id)) {
           skipCounts.duplicate++;
           continue;
         }
 
-        seenJobs.add(jobIdentifier);
+        seenJobs.add(job.id);
         newJobsFoundOnPage++;
 
         if (!isSoftwareJob(job.title)) {
@@ -128,11 +130,12 @@ async function scrapeMeta() {
         }
 
         matchingJobs.push({
+          id: job.id,
           company: "Meta",
           title: job.title,
-          department: "Engineering", 
+          department: null, // not shown on the results page; null instead of a made-up value
           location: job.location,
-          daysSincePosted: "Recent (Sorted by Date)", 
+          daysSincePosted: null, // not shown on the results page
           url: job.url
         });
       }
@@ -180,12 +183,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : (job.daysSincePosted || "Recent");
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department || "N/A"})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -194,4 +197,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

@@ -1,7 +1,7 @@
 // custom/zoho.mjs | run: node custom/zoho.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 
 // We check both the Global Corporate portal and the APAC regional portal
@@ -80,6 +80,7 @@ async function scrapeZoho() {
   const matchingJobs = [];
   const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
   let totalJobsChecked = 0;
+  let failedPortalCount = 0;
   
   for (const apiUrl of ZOHO_ENDPOINTS) {
     const portalName = apiUrl.includes("zohoapac") ? "APAC Portal" : "Global Portal";
@@ -95,6 +96,7 @@ async function scrapeZoho() {
 
     if (!response.ok) {
       log(`   ⚠️ HTTP ${response.status} while fetching ${portalName}. Skipping...`);
+      failedPortalCount++;
       continue;
     }
 
@@ -132,14 +134,20 @@ async function scrapeZoho() {
         .join(", ") || "India";
 
       matchingJobs.push({
+        id: String(job.id),
         company: "Zoho",
         title: job.Posting_Title,
         department: job.Industry || "N/A",
         location: displayLocation,
-        daysSincePosted: job.Date_Opened ? daysSincePosted : "Recent",
+        daysSincePosted: job.Date_Opened ? daysSincePosted : null, // null instead of a text label
         url: job.$url
       });
     }
+  }
+
+  // One portal failing is a warning; both failing means we saw nothing, so fail loudly
+  if (failedPortalCount === ZOHO_ENDPOINTS.length) {
+    throw new Error(`All ${ZOHO_ENDPOINTS.length} Zoho portals failed`);
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total across all portals`);
@@ -170,13 +178,13 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
-    // Handle number-based dates vs string-based fallback ("Recent")
+  allJobs.forEach((job, jobIndex) => {
+    // null means Zoho gave no date
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
-      : job.daysSincePosted;
+      : "Recent";
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -185,4 +193,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

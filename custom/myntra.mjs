@@ -1,6 +1,6 @@
 // custom/myntra.mjs | run: node custom/myntra.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 20; 
 const REQUEST_TIMEOUT_MS = 15000;
@@ -47,7 +47,11 @@ async function scrapeMyntra() {
     if (!response.ok) throw new Error(`HTTP ${response.status} while fetching Myntra API`);
 
     const data = await response.json();
-    const entities = data.entities || [];
+    // A missing entities array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.entities)) {
+      throw new Error(`Unexpected API response on page ${page}: no entities array`);
+    }
+    const entities = data.entities;
 
     log(`   Page ${page} returned ${entities.length} jobs`);
     if (entities.length === 0) break;
@@ -73,10 +77,11 @@ async function scrapeMyntra() {
       }
 
       matchingJobs.push({
+        id: String(job.id),
         company: "Myntra",
         title: job.jobTitle,
         department: "N/A",
-        location: job.jobLocation?.[0]?.city || "Bengaluru",
+        location: job.jobLocation?.[0]?.city || "Not listed", // not a made-up city
         daysSincePosted: daysSincePosted,
         url: `https://careers.myntra.com/jobs/${job.id}`
       });
@@ -115,9 +120,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title}`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title}`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -126,4 +131,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

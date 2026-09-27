@@ -1,6 +1,6 @@
 // custom/postman.mjs | run: node custom/postman.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://www.postman.com/_mk-www-next/api-cache/careers-jobs.json";
 
@@ -59,7 +59,11 @@ async function scrapePostman() {
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching Postman API`);
 
   const data = await response.json();
-  const jobs = data.jobs || [];
+  // A missing jobs array means the API shape changed; fail loudly instead of reporting 0 jobs
+  if (!Array.isArray(data.jobs)) {
+    throw new Error(`Unexpected API response: no jobs array`);
+  }
+  const jobs = data.jobs;
   
   log(`   Found ${jobs.length} total globally in system`);
 
@@ -82,6 +86,7 @@ async function scrapePostman() {
     }
 
     matchingJobs.push({
+      id: String(job.id || job.url),
       company: "Postman",
       title: job.title,
       department: job.department || "N/A",
@@ -118,9 +123,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -129,4 +134,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

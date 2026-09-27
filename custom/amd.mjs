@@ -1,7 +1,7 @@
 // custom/amd.mjs | run: node custom/amd.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const MAX_PAGES_TO_FETCH = 20;
 
@@ -98,7 +98,11 @@ async function scrapeAMD() {
     }
 
     const json = await response.json();
-    const jobs = json.jobs || [];
+    // A missing jobs array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(json.jobs)) {
+      throw new Error(`Unexpected API response on page ${currentPage}: no jobs array`);
+    }
+    const jobs = json.jobs;
 
     log(`   Page ${currentPage} returned ${jobs.length} jobs`);
 
@@ -133,6 +137,7 @@ async function scrapeAMD() {
       }
 
       matchingJobs.push({
+        id: String(jobData.req_id || jobData.slug),
         company: "AMD",
         title: jobData.title,
         department: department.trim(),
@@ -180,12 +185,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -194,4 +199,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

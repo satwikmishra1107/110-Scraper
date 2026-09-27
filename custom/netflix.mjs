@@ -1,6 +1,6 @@
 // custom/netflix.mjs | run: node custom/netflix.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 20; 
 const REQUEST_TIMEOUT_MS = 15000;
@@ -8,6 +8,11 @@ const REQUEST_TIMEOUT_MS = 15000;
 const SOFTWARE_PATTERN =
   /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+
+const INDIA_LOCATIONS = [
+  "india", "bengaluru", "bangalore", "hyderabad",
+  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
+];
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -20,6 +25,15 @@ function isSoftwareJob(title, department) {
   return SOFTWARE_PATTERN.test(title || "") || SOFTWARE_PATTERN.test(department || "");
 }
 
+// The API's location=India is a search hint, not a guarantee, so check each job too (same as HSBC)
+// Whole words only, so "Indianapolis, Indiana" does not count as India
+const INDIA_LOCATION_REGEX = new RegExp(`\\b(?:${INDIA_LOCATIONS.join("|")})\\b`, "i");
+
+function isIndiaLocation(locationText) {
+  if (!locationText) return false;
+  return INDIA_LOCATION_REGEX.test(String(locationText));
+}
+
 function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
   if (!timestampSeconds) return 0;
   const postedDate = new Date(timestampSeconds * 1000);
@@ -30,7 +44,7 @@ function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
 async function scrapeNetflix() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0 };
+  const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
   
   let startOffset = 0;
   let totalJobsChecked = 0;
@@ -71,7 +85,11 @@ async function scrapeNetflix() {
     if (!success) throw new Error("Hit maximum 429 rate limits. Giving up.");
 
     const data = await response.json();
-    const positions = data.positions || [];
+    // A missing positions array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.positions)) {
+      throw new Error(`Unexpected API response on page ${page + 1}: no positions array`);
+    }
+    const positions = data.positions;
     
     if (page === 0) {
       totalJobsInAPI = data.count || positions.length;
@@ -90,6 +108,11 @@ async function scrapeNetflix() {
         continue;
       }
 
+      if (!isIndiaLocation(job.location)) {
+        skipCounts.notIndia++;
+        continue;
+      }
+
       if (!isSoftwareJob(job.name, job.department)) {
         skipCounts.notSoftware++;
         continue;
@@ -98,6 +121,7 @@ async function scrapeNetflix() {
       const jobUrl = job.canonicalPositionUrl || `https://jobs.netflix.com/jobs/${job.ats_job_id || job.id}`;
 
       matchingJobs.push({
+        id: String(job.id),
         company: "Netflix",
         title: job.name,
         department: job.department || "N/A",
@@ -112,7 +136,7 @@ async function scrapeNetflix() {
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software`);
+  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
@@ -138,9 +162,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -149,4 +173,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

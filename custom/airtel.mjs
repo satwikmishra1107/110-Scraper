@@ -5,7 +5,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50; 
 const MAX_PAGES_TO_FETCH = 20; 
 
@@ -42,11 +42,13 @@ function isSoftwareJob(title, department) {
 }
 
 function parseDarwinboxLocation(job) {
-  if (job.officelocations_without_area && Array.isArray(job.officelocations_without_area)) {
-    const cleanLocation = job.officelocations_without_area[0].replace(/[\r\n]+/g, ', ');
-    return cleanLocation || "India";
+  const officeLocations = job.officelocations_without_area;
+  // Check the array actually has a first entry before calling .replace on it
+  if (Array.isArray(officeLocations) && officeLocations.length > 0 && officeLocations[0]) {
+    return officeLocations[0].replace(/[\r\n]+/g, ', ');
   }
-  return job.locations || job.country || "India";
+  // No "India" default: an unknown location should fail the India check, not pass it
+  return job.locations || job.country || "";
 }
 
 function isIndiaLocation(locationText, countryCode) {
@@ -122,7 +124,11 @@ async function scrapeAirtel() {
         throw new Error(`In-browser fetch failed: ${jsonResponse.error}`);
       }
 
-      const jobs = jsonResponse.data || [];
+      // A missing data array means the API shape changed; fail loudly instead of reporting 0 jobs
+      if (!Array.isArray(jsonResponse.data)) {
+        throw new Error(`Unexpected API response on page ${pageNum}: no data array`);
+      }
+      const jobs = jsonResponse.data;
       log(`   Page ${pageNum} returned ${jobs.length} jobs`);
       
       if (jobs.length === 0) break;
@@ -159,6 +165,7 @@ async function scrapeAirtel() {
         const jobUrl = `https://bhartifoundation.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
 
         matchingJobs.push({
+          id: String(job.id),
           company: "Airtel (Bharti)",
           title: jobTitle,
           department: department || "N/A",
@@ -213,12 +220,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -227,4 +234,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

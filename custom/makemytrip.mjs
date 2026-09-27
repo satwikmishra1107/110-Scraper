@@ -1,6 +1,6 @@
 // custom/makemytrip.mjs | run: node custom/makemytrip.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://careers.makemytrip.com/api/jobs";
 
@@ -49,7 +49,11 @@ async function scrapeMakeMyTrip() {
   if (!response.ok) throw new Error(`HTTP ${response.status} while fetching MakeMyTrip API`);
 
   const data = await response.json();
-  const jobs = data.allJobs || [];
+  // A missing allJobs array means the API shape changed; fail loudly instead of reporting 0 jobs
+  if (!Array.isArray(data.allJobs)) {
+    throw new Error(`Unexpected API response: no allJobs array`);
+  }
+  const jobs = data.allJobs;
   
   log(`   Found ${jobs.length} total jobs in system`);
 
@@ -69,7 +73,8 @@ async function scrapeMakeMyTrip() {
       continue;
     }
 
-    const timestamp = job.job_updated_timestamp || job.job_created_timestamp;
+    // Created first: using the updated time would make every edit look like a repost
+    const timestamp = job.job_created_timestamp || job.job_updated_timestamp;
     const daysSincePosted = getDaysSincePosted(timestamp, currentTimeInMilliseconds);
 
     if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
@@ -78,6 +83,7 @@ async function scrapeMakeMyTrip() {
     }
 
     matchingJobs.push({
+      id: String(job.job_id),
       company: "MakeMyTrip",
       title: job.job_title,
       department: job.department || "N/A",
@@ -114,9 +120,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -125,4 +131,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

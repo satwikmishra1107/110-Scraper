@@ -1,7 +1,7 @@
 // custom/amazon.mjs | run: node custom/amazon.mjs
 
 // ---------- Settings you can change ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 40;    // Increased to 40 to safely cover all of Amazon's current job volume
 const REQUEST_TIMEOUT_MS = 15000;
@@ -61,7 +61,11 @@ async function scrapeAmazon() {
     }
 
     const data = await response.json();
-    const jobsOnThisPage = data.jobs || [];
+    // A missing jobs array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.jobs)) {
+      throw new Error(`Unexpected API response on page ${pageNumber + 1}: no jobs array`);
+    }
+    const jobsOnThisPage = data.jobs;
 
     if (pageNumber === 0 && data.hits !== undefined) {
       log(`   API reports ${data.hits} total jobs matching category/location`);
@@ -89,6 +93,7 @@ async function scrapeAmazon() {
       }
 
       matchingJobs.push({
+        id: String(job.id_icims || job.id),
         company: "Amazon",
         title: job.title,
         department: job.business_category || "N/A",
@@ -163,4 +168,4 @@ async function main() {
   }
 }
 
-await main();
+await main();

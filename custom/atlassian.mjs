@@ -1,7 +1,7 @@
 // custom/atlassian.mjs | run: node custom/atlassian.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://www.atlassian.com/endpoint/careers/listings";
 
@@ -127,6 +127,7 @@ async function scrapeAtlassian() {
     const jobUrl = job.portalJobPost?.portalUrl || job.applyUrl || `https://www.atlassian.com/company/careers/detail/${job.id}`;
 
     matchingJobs.push({
+      id: String(job.id),
       company: "Atlassian",
       title: job.title,
       department: job.category || "N/A",
@@ -164,9 +165,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -175,4 +176,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

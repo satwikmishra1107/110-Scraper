@@ -5,7 +5,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 
 // The correct TurboHire frontend URL
 const FLIPKART_JOBS_URL = "https://flipkart.turbohire.co/dashboardv2?orgId=4d757ba0-3d57-448a-b82c-238ed87ac90f&type=0"; 
@@ -57,16 +57,17 @@ function isSoftwareJob(title, department) {
 }
 
 function parseFlipkartLocation(locString) {
-  if (!locString) return "India";
+  // No "India" default: an unknown location should fail the India check, not pass it
+  if (!locString) return "";
   try {
     const parsed = JSON.parse(locString);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.map(p => p.Address).join(" | ") || "India";
+      return parsed.map(locationEntry => locationEntry.Address).join(" | ");
     }
-  } catch (e) {
-    // Silently fall back if JSON parse fails
+  } catch (parseError) {
+    // Not JSON: fall through and check the raw text instead
   }
-  return "India";
+  return String(locString);
 }
 
 function isIndiaLocation(locationText) {
@@ -102,6 +103,7 @@ async function scrapeFlipkart() {
   });
 
   let capturedJobs = [];
+  let reportedTotalJobs = 0;
   let apiIntercepted = false;
 
   try {
@@ -116,6 +118,7 @@ async function scrapeFlipkart() {
           const json = await response.json();
           if (json && json.Result) {
             capturedJobs = json.Result;
+            reportedTotalJobs = json.Total || capturedJobs.length;
             apiIntercepted = true;
             log(`   ✅ Successfully intercepted TurboHire API! Found ${json.Total || capturedJobs.length} raw jobs.`);
           }
@@ -147,6 +150,11 @@ async function scrapeFlipkart() {
     throw new Error("Failed to intercept job data. The API might have timed out or structure changed.");
   }
 
+  // The frontend only requests the first page; warn when the API says there are more
+  if (reportedTotalJobs > capturedJobs.length) {
+    log(`   ⚠️ API reports ${reportedTotalJobs} jobs but only ${capturedJobs.length} were captured. Later pages are being missed.`);
+  }
+
   log(`   Filtering intercepted jobs...`);
 
   for (const job of capturedJobs) {
@@ -162,7 +170,8 @@ async function scrapeFlipkart() {
       continue;
     }
 
-    const daysSincePosted = getDaysSincePosted(job.PublishedDate || job.UpdatedDate, currentTime);
+    // PublishedDate only: falling back to UpdatedDate would make every edit look like a repost
+    const daysSincePosted = getDaysSincePosted(job.PublishedDate, currentTime);
 
     if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
       skipCounts.tooOld++;
@@ -173,6 +182,7 @@ async function scrapeFlipkart() {
     const jobUrl = `https://flipkart.turbohire.co/job/${job.JobIdObfuscated || job.JobId}`;
 
     matchingJobs.push({
+      id: String(job.JobId),
       company: "Flipkart",
       title: job.JobTitle,
       department: job.Department || "N/A",
@@ -210,12 +220,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -224,4 +234,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();

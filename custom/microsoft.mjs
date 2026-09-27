@@ -1,12 +1,17 @@
 // custom/microsoft.mjs | run: node custom/microsoft.mjs
 
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const MAX_PAGES_TO_FETCH = 40;
 const REQUEST_TIMEOUT_MS = 20000;
 
 const SOFTWARE_PATTERN =
   /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+
+const INDIA_LOCATIONS = [
+  "india", "bengaluru", "bangalore", "hyderabad",
+  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
+];
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const jitter = base => base + Math.floor(Math.random() * base * 0.4);
@@ -18,6 +23,15 @@ function log(message) {
 
 function isSoftwareJob(title, department) {
   return SOFTWARE_PATTERN.test(title || "") || SOFTWARE_PATTERN.test(department || "");
+}
+
+// The API's location=India is a search hint, not a guarantee, so check each job too (same as HSBC)
+// Whole words only, so "Indianapolis, Indiana" does not count as India
+const INDIA_LOCATION_REGEX = new RegExp(`\\b(?:${INDIA_LOCATIONS.join("|")})\\b`, "i");
+
+function isIndiaLocation(locationText) {
+  if (!locationText) return false;
+  return INDIA_LOCATION_REGEX.test(String(locationText));
 }
 
 function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
@@ -67,7 +81,7 @@ async function fetchWithLogging(apiUrl, options, attempt) {
 async function scrapeMicrosoft() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0 };
+  const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
 
   let startOffset = 0;
   let totalJobsChecked = 0;
@@ -134,7 +148,11 @@ async function scrapeMicrosoft() {
       throw new Error(`Response wasn't valid JSON (likely a block/challenge page): ${bodyText.slice(0, 200)}`);
     }
 
-    const positions = data.data?.positions || [];
+    // A missing positions array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.data?.positions)) {
+      throw new Error(`Unexpected API response on page ${page + 1}: no positions array`);
+    }
+    const positions = data.data.positions;
 
     if (positions.length === 0) break;
 
@@ -148,16 +166,24 @@ async function scrapeMicrosoft() {
         continue;
       }
 
+      const locationText = Array.isArray(job.locations) ? job.locations.join(" | ") : "";
+
+      if (!isIndiaLocation(locationText)) {
+        skipCounts.notIndia++;
+        continue;
+      }
+
       if (!isSoftwareJob(job.name, job.department)) {
         skipCounts.notSoftware++;
         continue;
       }
 
       matchingJobs.push({
+        id: String(job.id),
         company: "Microsoft",
         title: job.name,
         department: job.department || "N/A",
-        location: job.locations ? job.locations.join(" | ") : "India",
+        location: locationText,
         daysSincePosted: daysSincePosted,
         url: `https://jobs.careers.microsoft.com${job.positionUrl}`
       });
@@ -168,7 +194,7 @@ async function scrapeMicrosoft() {
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software`);
+  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
@@ -194,9 +220,9 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`;
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });

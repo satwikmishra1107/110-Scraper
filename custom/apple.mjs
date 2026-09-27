@@ -1,7 +1,7 @@
 // custom/apple.mjs | run: node custom/apple.mjs
 
 // ---------- Settings you can change ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const MAX_PAGES_TO_FETCH = 20;    // safety limit so the loop can never run forever
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://jobs.apple.com/api/v1/search";
@@ -75,7 +75,11 @@ async function scrapeApple() {
     }
 
     const data = await response.json();
-    const searchResults = data.res?.searchResults || [];
+    // A missing searchResults array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.res?.searchResults)) {
+      throw new Error(`Unexpected API response on page ${pageNumber}: no searchResults array`);
+    }
+    const searchResults = data.res.searchResults;
 
     log(`   Page ${pageNumber} returned ${searchResults.length} jobs`);
 
@@ -178,4 +182,4 @@ async function main() {
   }
 }
 
-await main();
+await main();

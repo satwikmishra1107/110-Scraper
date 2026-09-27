@@ -1,7 +1,7 @@
 // custom/hsbc.mjs | run: node custom/hsbc.mjs
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 7;
+const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
 const MAX_PAGES_TO_FETCH = 20; 
 const REQUEST_TIMEOUT_MS = 15000;
@@ -118,7 +118,11 @@ async function scrapeHSBC() {
     if (!success) throw new Error("Hit maximum 429 rate limits. Giving up.");
 
     const data = await response.json();
-    const positions = data.positions || [];
+    // A missing positions array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.positions)) {
+      throw new Error(`Unexpected API response on page ${page + 1}: no positions array`);
+    }
+    const positions = data.positions;
     
     if (page === 0) {
       totalJobsInAPI = data.count || positions.length;
@@ -150,6 +154,7 @@ async function scrapeHSBC() {
       const jobUrl = job.canonicalPositionUrl || `https://portal.careers.hsbc.com/careers/job/${job.id}`;
 
       matchingJobs.push({
+        id: String(job.id),
         company: "HSBC",
         title: job.name,
         department: job.department || "N/A",
@@ -191,12 +196,12 @@ async function main() {
   console.log(`RESULTS: ${allJobs.length} jobs found`);
   console.log("=".repeat(60));
 
-  allJobs.forEach((job, i) => {
+  allJobs.forEach((job, jobIndex) => {
     const postedText = typeof job.daysSincePosted === 'number' 
       ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
       : job.daysSincePosted;
 
-    console.log(`${i + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
     console.log(`   Location: ${job.location} | Posted: ${postedText}`);
     console.log(`   Link: ${job.url}\n`);
   });
@@ -205,4 +210,4 @@ async function main() {
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
 }
 
-await main();
+await main();
