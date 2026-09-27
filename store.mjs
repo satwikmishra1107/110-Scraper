@@ -31,6 +31,18 @@ export async function deleteFacet(company) {
 
 // ---------- Jobs (table: jobs) ----------
 
+// How many days newer posted_date must be to count as a repost.
+// Workday's date is worked out from "Posted Today" with OUR clock (UTC), but Workday counts
+// "today" in the company's own time zone. Right after UTC midnight the two disagree by a day,
+// so every "Posted Today" job looked 1 day newer. A real repost jumps further than that.
+const MIN_REPOST_GAP_DAYS = { workday: 2 };
+const DEFAULT_MIN_REPOST_GAP_DAYS = 1;
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function daysBetween(olderDate, newerDate) {
+  return Math.round((Date.parse(newerDate) - Date.parse(olderDate)) / MILLISECONDS_PER_DAY);
+}
+
 // Lookups go per company in small batches: a long `in (...)` list makes the request URL too long.
 const LOOKUP_BATCH_SIZE = 50;
 
@@ -97,8 +109,8 @@ export async function saveJobsAndGetNew(jobs) {
       continue;
     }
     const storedPostedDate = storedPostedDates.get(jobKey);
-    // posted_date is "YYYY-MM-DD", so comparing the strings compares the dates
-    if (row.posted_date && storedPostedDate && row.posted_date > storedPostedDate) {
+    const minimumGapDays = MIN_REPOST_GAP_DAYS[row.source] ?? DEFAULT_MIN_REPOST_GAP_DAYS;
+    if (row.posted_date && storedPostedDate && daysBetween(storedPostedDate, row.posted_date) >= minimumGapDays) {
       // New first_seen_at = the board counts it as found now, so it moves back to the top
       rowsToMarkUpdated.push({ ...row, is_update: true, first_seen_at: new Date().toISOString() });
     }
