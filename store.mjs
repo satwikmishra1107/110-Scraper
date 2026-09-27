@@ -35,7 +35,9 @@ export async function deleteFacet(company) {
 // Workday's date is worked out from "Posted Today" with OUR clock (UTC), but Workday counts
 // "today" in the company's own time zone. Right after UTC midnight the two disagree by a day,
 // so every "Posted Today" job looked 1 day newer. A real repost jumps further than that.
-const MIN_REPOST_GAP_DAYS = { workday: 2 };
+// Custom scrapers only give "N days ago", so their date is also worked out from our clock and can
+// wobble by a day between runs. Same fix: require a 2-day jump.
+const MIN_REPOST_GAP_DAYS = { workday: 2, custom: 2 };
 const DEFAULT_MIN_REPOST_GAP_DAYS = 1;
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -183,4 +185,4 @@ export async function saveRun(source, companyResults, savedJobs = []) {
     report: reportWithCounts,
   });
   if (error) console.error(`Supabase run insert failed (${source}): ${error.message}`);
-}
+}

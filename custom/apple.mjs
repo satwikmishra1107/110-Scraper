@@ -1,4 +1,5 @@
 // custom/apple.mjs | run: node custom/apple.mjs
+import { pathToFileURL } from "node:url";
 
 // ---------- Settings you can change ----------
 const MAX_POSTING_AGE_DAYS = 1;
@@ -139,7 +140,7 @@ async function scrapeApple() {
 }
 
 // ---------- Main ----------
-async function main() {
+export async function main() {
   const startTimeInMilliseconds = Date.now();
 
   log(`Starting Apple scraper`);
@@ -148,6 +149,7 @@ async function main() {
 
   let allJobs = [];
   let scrapeFailed = false;
+  let errorMessage = null;
 
   log(`▶ Apple (jobs.apple.com)`);
 
@@ -157,6 +159,7 @@ async function main() {
     log(`✅ Apple done`);
   } catch (error) {
     scrapeFailed = true;
+    errorMessage = error.message;
     log(`❌ Apple failed: ${error.message}`);
   }
 
@@ -180,6 +183,14 @@ async function main() {
   if (scrapeFailed) {
     log(`⚠️ Apple scraper failed to finish correctly.`);
   }
+
+  // Hand the results back to whoever called main() (the common custom runner)
+  return { allJobs, scrapeFailed, errorMessage };
 }
 
-await main();
+// Run main() only when started directly (node custom/<file>.mjs),
+// not when the common custom runner imports this file
+const isRunDirectly = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isRunDirectly) {
+  await main();
+}

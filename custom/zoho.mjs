@@ -1,4 +1,5 @@
 // custom/zoho.mjs | run: node custom/zoho.mjs
+import { pathToFileURL } from "node:url";
 
 // ---------- Settings ----------
 const MAX_POSTING_AGE_DAYS = 1;
@@ -31,7 +32,7 @@ const SD_KEYWORDS = [
   "react",
   "node",
   "java",
-  "c++",
+  "c\\+\\+", // + must be escaped: an unescaped "c++" crashes the regex below
   "typescript",
   "mongo",
 ];
@@ -158,19 +159,21 @@ async function scrapeZoho() {
 }
 
 // ---------- Main ----------
-async function main() {
+export async function main() {
   const startTime = Date.now();
   log(`Starting Zoho scraper...`);
   console.log("");
 
   let allJobs = [];
   let scrapeFailed = false;
+  let errorMessage = null;
 
   try {
     allJobs = await scrapeZoho();
     log(`✅ Zoho done`);
   } catch (error) {
     scrapeFailed = true;
+    errorMessage = error.message;
     log(`❌ Zoho failed: ${error.message}`);
   }
 
@@ -191,6 +194,14 @@ async function main() {
 
   log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
   if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
+
+  // Hand the results back to whoever called main() (the common custom runner)
+  return { allJobs, scrapeFailed, errorMessage };
 }
 
-await main();
+// Run main() only when started directly (node custom/<file>.mjs),
+// not when the common custom runner imports this file
+const isRunDirectly = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isRunDirectly) {
+  await main();
+}

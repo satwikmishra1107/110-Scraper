@@ -1,4 +1,5 @@
 // custom/EXLandJPMorgan.mjs | run: node custom/EXLandJPMorgan.mjs
+import { pathToFileURL } from "node:url";
 
 // ---------- Settings you can change ----------
 const MAX_POSTING_AGE_DAYS = 1;
@@ -140,7 +141,7 @@ async function scrapeOneCompany(company) {
 }
 
 // ---------- Main ----------
-async function main() {
+export async function main() {
   const startTimeInMilliseconds = Date.now();
 
   log(`Starting Oracle HCM scraper`);
@@ -150,6 +151,7 @@ async function main() {
 
   const allJobs = [];
   const failedCompanies = [];
+  const failureMessages = [];
 
   for (const company of COMPANIES) {
     log(`▶ ${company.name} (${company.host}, ${company.siteNumber})`);
@@ -160,6 +162,7 @@ async function main() {
       log(`✅ ${company.name} done`);
     } catch (error) {
       failedCompanies.push(company.name);
+      failureMessages.push(`${company.name}: ${error.message}`);
       log(`❌ ${company.name} failed: ${error.message}`);
     }
 
@@ -185,6 +188,16 @@ async function main() {
   if (failedCompanies.length > 0) {
     log(`⚠️ Failed companies: ${failedCompanies.join(", ")}`);
   }
+
+  // Hand the results back to whoever called main() (the common custom runner)
+  const scrapeFailed = failedCompanies.length > 0;
+  const errorMessage = scrapeFailed ? failureMessages.join(" | ") : null;
+  return { allJobs, scrapeFailed, errorMessage };
 }
 
-await main();
+// Run main() only when started directly (node custom/<file>.mjs),
+// not when the common custom runner imports this file
+const isRunDirectly = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isRunDirectly) {
+  await main();
+}
