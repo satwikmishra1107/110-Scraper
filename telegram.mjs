@@ -12,6 +12,18 @@ const SOURCE_LABELS = {
   smartrecruiters: "SmartRecruiters",
 };
 
+// Titles with these words don't get a Telegram ping (they still appear on the board).
+// Whole words only: "lead" skips "Tech Lead" but not "Leading..."; "sr" also catches "Sr." and "Sr".
+const SKIPPED_SENIORITY_WORDS = [
+  "senior", "sr", "lead", "staff", "principal", "director", "manager", "head",
+  "architect", "vp", "vice president", "distinguished", "fellow", "intern"
+];
+const SENIORITY_PATTERN = new RegExp(`\\b(${SKIPPED_SENIORITY_WORDS.join("|")})\\b`, "i");
+
+function isTooSenior(title) {
+  return SENIORITY_PATTERN.test(title || "");
+}
+
 // Same rule as the dashboard: "  Talent  Acquisition " → "talent acquisition"
 function normalizeTitle(title) {
   return (title || "").trim().replace(/\s+/g, " ").toLowerCase();
@@ -75,7 +87,11 @@ export async function sendTelegramAlerts(source, jobs) {
     console.error(`Telegram: ${error.message} — sending without the hidden-title filter.`);
   }
 
-  const jobsToAlert = jobs.filter((job) => !hiddenTitles.has(normalizeTitle(job.title)));
+  const jobsToAlert = jobs.filter(
+    (job) => !hiddenTitles.has(normalizeTitle(job.title)) && !isTooSenior(job.title),
+  );
+  const skippedCount = jobs.length - jobsToAlert.length;
+  if (skippedCount > 0) console.log(`Telegram: skipped ${skippedCount} job(s) — hidden or senior titles.`);
   if (jobsToAlert.length === 0) return;
 
   let failedCount = 0;
