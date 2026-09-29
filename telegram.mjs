@@ -16,7 +16,7 @@ const SOURCE_LABELS = {
 // Whole words only: "lead" skips "Tech Lead" but not "Leading..."; "sr" also catches "Sr." and "Sr".
 const SKIPPED_SENIORITY_WORDS = [
   "senior", "sr", "lead", "staff", "principal", "director", "manager", "head",
-  "architect", "vp", "vice president", "distinguished", "fellow", "intern"
+  "architect", "vp", "vice president", "distinguished", "fellow", "intern", "tester"
 ];
 const SENIORITY_PATTERN = new RegExp(`\\b(${SKIPPED_SENIORITY_WORDS.join("|")})\\b`, "i");
 
