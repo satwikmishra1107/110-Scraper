@@ -6,9 +6,10 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
-const MAX_PAGES_TO_FETCH = 30;
+// Safety cap only: pagination normally ends on the first page that has no job cards
+const MAX_PAGES_TO_FETCH = 100;
 const GOOGLE_BASE_URL =
-  "https://www.google.com/about/careers/applications/jobs/results/?location=India&degree=BACHELORS&sort_by=date&target_level=EARLY&target_level=MID";
+  "https://www.google.com/about/careers/applications/jobs/results/?location=India&degree=BACHELORS&sort_by=date&target_level=EARLY";
 
 const SD_KEYWORDS = [
   "software",
@@ -60,95 +61,72 @@ async function scrapeGoogle() {
   });
 
   const matchingJobs = [];
-  const skipCounts = { duplicate: 0, notSoftware: 0 };
+  let notSoftwareCount = 0;
   let totalJobsChecked = 0;
-  const seenJobs = new Set();
+  let totalJobsOnSite = null;
 
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
 
-    let currentPage = 1;
-
-    while (currentPage <= MAX_PAGES_TO_FETCH) {
+    for (let currentPage = 1; currentPage <= MAX_PAGES_TO_FETCH; currentPage++) {
       log(`   Fetching Google jobs page ${currentPage}...`);
 
       const pageUrl = `${GOOGLE_BASE_URL}&page=${currentPage}`;
-      
+
       await page.goto(pageUrl, { waitUntil: "networkidle2", timeout: 45000 })
         .catch(e => log(`   ⚠️ goto warning: ${e.message}`));
 
+      // Wait for the results header ("23 jobs matched"); it renders on empty pages too
       try {
         await page.waitForFunction(
-          () => document.body.innerText.includes("Learn more"),
+          () => /\d+ jobs? matched/.test(document.body.innerText),
           { timeout: 15000 },
         );
       } catch (error) {
-        log(`   No jobs found on page ${currentPage} (or timed out). Ending pagination.`);
+        throw new Error(`Results never loaded on page ${currentPage}`);
+      }
+
+      await delay(2000);
+
+      const { matchedCount, extractedJobs } = await page.evaluate(() => {
+        const jobData = [];
+
+        // Job hrefs are relative ("jobs/results/<id>-<slug>?..."), so match without a leading slash.
+        // One <li> per job; reading the <h3> from it avoids the tooltip <h2>s inside each card.
+        document.querySelectorAll('a[href*="jobs/results/"]').forEach((jobLink) => {
+          const jobId = jobLink.href.match(/\/jobs\/results\/(\d+)/)?.[1];
+          if (!jobId) return; // pagination / nav links
+
+          const jobCard = jobLink.closest("li");
+          const title = jobCard?.querySelector("h3")?.innerText.trim();
+          if (!title) return;
+
+          // The location line comes right after the "place" icon text
+          const lines = jobCard.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
+          const placeIndex = lines.indexOf("place");
+          const locationLine = placeIndex >= 0 ? lines[placeIndex + 1] : lines.find((line) => line.includes("India"));
+
+          jobData.push({ id: jobId, title, location: locationLine || "India", url: jobLink.href });
+        });
+
+        const matchedText = document.body.innerText.match(/(\d+) jobs? matched/);
+        return { matchedCount: matchedText ? Number(matchedText[1]) : null, extractedJobs: jobData };
+      });
+
+      if (totalJobsOnSite === null) totalJobsOnSite = matchedCount;
+      log(`   Page ${currentPage} returned ${extractedJobs.length} jobs.`);
+
+      if (extractedJobs.length === 0) {
+        log(`   Reached the end of the results.`);
         break;
       }
 
-      await delay(2000); 
-
-      const extractedJobs = await page.evaluate(() => {
-        const jobData = [];
-        const headings = document.querySelectorAll("h2, h3");
-
-        headings.forEach((heading) => {
-          const title = heading.innerText.trim();
-          if (!title) return;
-
-          let cardNode = heading;
-          let jobCard = null;
-
-          while (cardNode && cardNode.parentElement) {
-            cardNode = cardNode.parentElement;
-            if (cardNode.innerText && cardNode.innerText.includes("Learn more")) {
-              jobCard = cardNode;
-              break;
-            }
-          }
-
-          if (!jobCard) return;
-
-          // Only links that point at a job's detail page count, not any first <a> in the card
-          const jobLinks = [...jobCard.querySelectorAll('a[href*="/jobs/results/"]')];
-          const distinctJobIds = new Set(
-            jobLinks
-              .map((jobLink) => jobLink.href.match(/\/jobs\/results\/(\d+)/)?.[1])
-              .filter(Boolean),
-          );
-
-          // 0 ids: no job link at all. 2+ ids: this "card" is really the whole list container,
-          // reached from a page heading that isn't a job title. Skip both.
-          if (distinctJobIds.size !== 1) return;
-
-          const jobId = [...distinctJobIds][0];
-          const jobLink = jobLinks.find((candidateLink) => candidateLink.href.includes(`/jobs/results/${jobId}`));
-          const lines = jobCard.innerText.split("\n").map((line) => line.trim()).filter((line) => line.length > 0);
-          const locationLine = lines.find((line) => line.includes("India")) || "India";
-
-          jobData.push({ id: jobId, title, location: locationLine, url: jobLink.href });
-        });
-
-        return jobData;
-      });
-
-      let newJobsFoundOnPage = 0;
-
       for (const job of extractedJobs) {
         totalJobsChecked++;
-        // The same job can appear twice (e.g. title link and "Learn more" link), so dedupe on its id
-        if (seenJobs.has(job.id)) {
-          skipCounts.duplicate++;
-          continue;
-        }
-
-        seenJobs.add(job.id);
-        newJobsFoundOnPage++;
 
         if (!isSoftwareJob(job.title)) {
-          skipCounts.notSoftware++;
+          notSoftwareCount++;
           continue;
         }
 
@@ -157,20 +135,12 @@ async function scrapeGoogle() {
           company: "Google",
           title: job.title,
           department: null, // not shown on the results page; null instead of a made-up value
-          location: job.location.replace("Google | ", ""),
+          location: job.location,
           daysSincePosted: null, // not shown on the results page
           url: job.url,
         });
       }
 
-      log(`   Page ${currentPage} returned ${newJobsFoundOnPage} new distinct jobs.`);
-
-      if (newJobsFoundOnPage === 0) {
-        log(`   Hit a page with only duplicate jobs. Stopping pagination.`);
-        break;
-      }
-
-      currentPage++;
       await delay(1000);
     }
   } finally {
@@ -178,8 +148,8 @@ async function scrapeGoogle() {
     await browser.close();
   }
 
-  log(`   Checked ${totalJobsChecked} raw job cards in total`);
-  log(`   Skipped: ${skipCounts.duplicate} duplicate, ${skipCounts.notSoftware} not software`);
+  log(`   Checked ${totalJobsChecked} job cards (site says ${totalJobsOnSite ?? "?"} matched)`);
+  log(`   Skipped: ${notSoftwareCount} not software`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
@@ -209,13 +179,8 @@ export async function main() {
   console.log("=".repeat(60));
 
   allJobs.forEach((job, jobIndex) => {
-    // Handle string-based visual dates instead of numbers
-    const postedText = typeof job.daysSincePosted === 'number' 
-      ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
-      : (job.daysSincePosted || "Recent");
-
     console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department || "N/A"})`);
-    console.log(`   Location: ${job.location} | Posted: ${postedText}`);
+    console.log(`   Location: ${job.location}`);
     console.log(`   Link: ${job.url}\n`);
   });
 
