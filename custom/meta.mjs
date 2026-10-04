@@ -59,17 +59,15 @@ async function scrapeMeta() {
   });
   
   const matchingJobs = [];
-  const skipCounts = { duplicate: 0, notSoftware: 0 };
+  let notSoftwareCount = 0;
   let totalJobsChecked = 0;
-  const seenJobs = new Set();
+  let totalJobsOnSite = null;
   
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
-    
-    let currentPage = 1;
 
-    while (currentPage <= MAX_PAGES_TO_FETCH) {
+    for (let currentPage = 1; currentPage <= MAX_PAGES_TO_FETCH; currentPage++) {
       log(`   Fetching Meta jobs page ${currentPage}...`);
       
       const pageUrl = `${META_BASE_URL}&page=${currentPage}`;
@@ -77,16 +75,20 @@ async function scrapeMeta() {
       await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 45000 })
         .catch(e => log(`   ⚠️ goto warning: ${e.message}`));
       
+      // Wait for the results header ("24 Items"). It renders on pages past the end too,
+      // so a missing header means the page failed to load, not that the results ran out
       try {
-        await page.waitForSelector('a[href*="/profile/job_details/"]', { timeout: 15000 });
+        await page.waitForFunction(
+          () => /\d+\s+Items?\b/.test(document.body.innerText),
+          { timeout: 15000 },
+        );
       } catch (error) {
-        log(`   No jobs found on page ${currentPage}. Ending pagination.`);
-        break; 
+        throw new Error(`Results never loaded on page ${currentPage}`);
       }
       
       await delay(2000); 
 
-      const extractedJobs = await page.evaluate(() => {
+      const { matchedCount, extractedJobs } = await page.evaluate(() => {
         const jobData = [];
         const jobLinks = document.querySelectorAll('a[href*="/profile/job_details/"]');
         
@@ -110,23 +112,23 @@ async function scrapeMeta() {
           jobData.push({ id: jobId, title, location: locationLine, url: link.href });
         });
         
-        return jobData;
+        const matchedText = document.body.innerText.match(/(\d+)\s+Items?\b/);
+        return { matchedCount: matchedText ? Number(matchedText[1]) : null, extractedJobs: jobData };
       });
 
-      let newJobsFoundOnPage = 0;
+      if (totalJobsOnSite === null) totalJobsOnSite = matchedCount;
+      log(`   Page ${currentPage} returned ${extractedJobs.length} jobs.`);
+
+      if (extractedJobs.length === 0) {
+        log(`   Reached the end of the results.`);
+        break;
+      }
 
       for (const job of extractedJobs) {
         totalJobsChecked++;
-        if (seenJobs.has(job.id)) {
-          skipCounts.duplicate++;
-          continue;
-        }
-
-        seenJobs.add(job.id);
-        newJobsFoundOnPage++;
 
         if (!isSoftwareJob(job.title)) {
-          skipCounts.notSoftware++;
+          notSoftwareCount++;
           continue;
         }
 
@@ -141,14 +143,8 @@ async function scrapeMeta() {
         });
       }
 
-      log(`   Page ${currentPage} returned ${newJobsFoundOnPage} new distinct jobs.`);
+      if (totalJobsOnSite !== null && totalJobsChecked >= totalJobsOnSite) break;
 
-      if (newJobsFoundOnPage === 0) {
-        log(`   Hit a page with only duplicate jobs. Stopping pagination.`);
-        break;
-      }
-
-      currentPage++;
       await delay(1500); 
     }
   } finally {
@@ -156,8 +152,12 @@ async function scrapeMeta() {
     await browser.close();
   }
 
-  log(`   Checked ${totalJobsChecked} raw job cards in total`);
-  log(`   Skipped: ${skipCounts.duplicate} duplicate, ${skipCounts.notSoftware} not software`);
+  log(`   Checked ${totalJobsChecked} job cards (site says ${totalJobsOnSite ?? "?"} matched)`);
+  // Fewer cards than the header promised means some pages were missed; say so instead of passing quietly
+  if (totalJobsOnSite !== null && totalJobsChecked < totalJobsOnSite) {
+    log(`   ⚠️ Only ${totalJobsChecked} of ${totalJobsOnSite} jobs were read`);
+  }
+  log(`   Skipped: ${notSoftwareCount} not software`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
