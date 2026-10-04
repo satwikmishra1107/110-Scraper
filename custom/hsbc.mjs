@@ -2,9 +2,9 @@
 import { pathToFileURL } from "node:url";
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 1;
 const JOBS_PER_PAGE = 50;
-const MAX_PAGES_TO_FETCH = 20; 
+// Safety cap only: the API returns 10 jobs per page whatever num asks for, so this allows 1000 jobs
+const MAX_PAGES_TO_FETCH = 100;
 const REQUEST_TIMEOUT_MS = 15000;
 
 const SD_KEYWORDS = [
@@ -76,7 +76,7 @@ function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
 async function scrapeHSBC() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
+  const skipCounts = { notSoftware: 0, notIndia: 0 };
   
   let startOffset = 0;
   let totalJobsChecked = 0;
@@ -145,12 +145,8 @@ async function scrapeHSBC() {
         continue;
       }
       
-      const daysSincePosted = getDaysSincePosted(job.t_update, currentTime);
-
-      if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
-        skipCounts.tooOld++;
-        continue;
-      }
+      // t_create is when the job was posted; t_update changes on every edit
+      const daysSincePosted = getDaysSincePosted(job.t_create || job.t_update, currentTime);
 
       const jobUrl = job.canonicalPositionUrl || `https://portal.careers.hsbc.com/careers/job/${job.id}`;
 
@@ -165,12 +161,13 @@ async function scrapeHSBC() {
       });
     }
 
-    startOffset += JOBS_PER_PAGE;
+    // Move on by what actually came back: the API caps pages at 10, so adding JOBS_PER_PAGE skipped 40 of every 50 jobs
+    startOffset += positions.length;
     if (startOffset < totalJobsInAPI) await delay(1000);
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
+  log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;

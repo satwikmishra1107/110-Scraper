@@ -2,7 +2,6 @@
 import { pathToFileURL } from "node:url";
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 
 // AInterviews API endpoint used by Lenskart
@@ -19,10 +18,6 @@ const SD_KEYWORDS = [
 const SD_REGEX = new RegExp(`\\b(?:${SD_KEYWORDS.join("|")})(?:s|ing)?\\b`, "i");
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
 
-const INDIA_LOCATIONS = [
-  "india", "bengaluru", "bangalore", "hyderabad", 
-  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
-];
 
 // ---------- Helpers ----------
 function log(message) {
@@ -34,14 +29,19 @@ function isSoftwareJob(title, category) {
   return SD_REGEX.test(title || "") || SD_REGEX.test(category || "");
 }
 
+// These boards are almost all India, so a job counts as India unless its location names only foreign places.
+// A fixed list of Indian cities kept missing real ones (Gurugram, Bhiwadi, Ahmedabad, ...)
+const INDIA_PLACES_REGEX =
+  /\b(?:india|pan[- ]?india|ncr|delhi|new delhi|okhla|gurgaon|gurugram|noida|faridabad|bengaluru|bangalore|hyderabad|mumbai|pune|chennai|kolkata|ahmedabad)\b/i;
+const FOREIGN_PLACES_REGEX =
+  /\b(?:uae|dubai|abu dhabi|saudi|riyadh|qatar|doha|singapore|japan|tokyo|thailand|bangkok|indonesia|jakarta|malaysia|philippines|vietnam|spain|madrid|italy|milan|united kingdom|uk|london|usa|united states|germany|france|netherlands|australia|canada)\b/i;
+
 function isIndiaLocation(locationText) {
   if (!locationText) return false;
-  const locLower = locationText.toLowerCase();
-  
-  if (locLower.includes("india")) return true;
-  if (INDIA_LOCATIONS.some(city => locLower.includes(city))) return true;
-  
-  return false;
+  const text = String(locationText);
+  // "Gurugram / Singapore / Dubai" mentions India, so it stays
+  if (INDIA_PLACES_REGEX.test(text)) return true;
+  return !FOREIGN_PLACES_REGEX.test(text);
 }
 
 function getDaysSincePosted(dateString, currentTimeInMilliseconds) {
@@ -57,7 +57,7 @@ function getDaysSincePosted(dateString, currentTimeInMilliseconds) {
 async function scrapeLenskart() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
+  const skipCounts = { notSoftware: 0, notIndia: 0 };
   
   log(`   Fetching all jobs from Lenskart (AInterviews API)...`);
 
@@ -95,10 +95,6 @@ async function scrapeLenskart() {
 
     const daysSincePosted = getDaysSincePosted(job.posted_date, currentTime);
 
-    if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
-      skipCounts.tooOld++;
-      continue;
-    }
     
     // The API returns relative apply URLs, so we prepend the base domain
     const jobUrl = job.apply_url ? `https://ainterviews.com${job.apply_url}` : `https://ainterviews.com/job_board/lenskart_ho/job/${job.id}/`;
@@ -115,7 +111,7 @@ async function scrapeLenskart() {
   }
 
   log(`   Checked ${jobs.length} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
+  log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;

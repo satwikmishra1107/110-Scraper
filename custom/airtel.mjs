@@ -6,12 +6,12 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
-const MAX_POSTING_AGE_DAYS = 1;
-const JOBS_PER_PAGE = 50; 
-const MAX_PAGES_TO_FETCH = 20; 
+const JOBS_PER_PAGE = 50;
+// Safety cap only: pagination normally ends when every job the API counts has been read
+const MAX_PAGES_TO_FETCH = 100;
 
-// The frontend URL we visit to clear Cloudflare
-const AIRTEL_CAREERS_URL = "https://bhartifoundation.darwinbox.in/ms/candidate/careers";
+// The frontend URL we visit to clear Cloudflare. Airtel itself, not "bhartifoundation" (the charity's board)
+const AIRTEL_CAREERS_URL = "https://airtel.darwinbox.in/ms/candidate/careers";
 // The API URL we will query from inside the browser
 const API_URL = "/ms/candidateapi/job/alljobs?companyId=main";
 
@@ -46,7 +46,8 @@ function parseDarwinboxLocation(job) {
   const officeLocations = job.officelocations_without_area;
   // Check the array actually has a first entry before calling .replace on it
   if (Array.isArray(officeLocations) && officeLocations.length > 0 && officeLocations[0]) {
-    return officeLocations[0].replace(/[\r\n]+/g, ', ');
+    // Raw values look like "Gurgaon, Haryana\r, India": the comma is already there, so just drop the line break
+    return officeLocations[0].replace(/[\r\n]+/g, "");
   }
   // No "India" default: an unknown location should fail the India check, not pass it
   return job.locations || job.country || "";
@@ -75,9 +76,10 @@ function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
 async function scrapeAirtel() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0, notIndia: 0 };
+  const skipCounts = { notSoftware: 0, notIndia: 0 };
   let totalJobsChecked = 0;
-  
+  let totalJobsInAPI = null;
+
   log(`   Launching Stealth Browser to bypass Cloudflare...`);
 
   const browser = await puppeteer.launch({ 
@@ -130,24 +132,18 @@ async function scrapeAirtel() {
         throw new Error(`Unexpected API response on page ${pageNum}: no data array`);
       }
       const jobs = jsonResponse.data;
+      if (totalJobsInAPI === null) {
+        totalJobsInAPI = Number(jsonResponse.job_counts) || null;
+        log(`   API reports ${totalJobsInAPI ?? "?"} open jobs`);
+      }
       log(`   Page ${pageNum} returned ${jobs.length} jobs`);
-      
-      if (jobs.length === 0) break;
 
-      let foundOldJob = false;
+      if (jobs.length === 0) break;
 
       for (const job of jobs) {
         totalJobsChecked++;
 
         const daysSincePosted = getDaysSincePosted(job.posted_on, currentTime);
-
-        // Jobs are sorted by "new", so we break when we hit old jobs
-        if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
-          skipCounts.tooOld++;
-          foundOldJob = true;
-          continue;
-        }
-
         const locationText = parseDarwinboxLocation(job);
 
         if (!isIndiaLocation(locationText, job.country)) {
@@ -163,7 +159,7 @@ async function scrapeAirtel() {
           continue;
         }
         
-        const jobUrl = `https://bhartifoundation.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
+        const jobUrl = `https://airtel.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
 
         matchingJobs.push({
           id: String(job.id),
@@ -176,15 +172,9 @@ async function scrapeAirtel() {
         });
       }
 
-      if (foundOldJob) {
-        log(`   Reached jobs older than ${MAX_POSTING_AGE_DAYS} days. Stopping pagination.`);
-        break;
-      }
-
-      // Stop if we got fewer jobs than requested
-      if (jobs.length < (jsonResponse.limit || JOBS_PER_PAGE)) {
-        break;
-      }
+      // Every job is read: stop once the API's own count is reached, or on a short page
+      if (totalJobsInAPI !== null && totalJobsChecked >= totalJobsInAPI) break;
+      if (jobs.length < JOBS_PER_PAGE) break;
 
       await delay(1000); 
     }
@@ -194,7 +184,7 @@ async function scrapeAirtel() {
   }
 
   log(`   Checked ${totalJobsChecked} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
+  log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;

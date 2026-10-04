@@ -1,18 +1,12 @@
 // custom/phonepe.mjs | run: node custom/phonepe.mjs
 import { pathToFileURL } from "node:url";
 
-const MAX_POSTING_AGE_DAYS = 1;
 const REQUEST_TIMEOUT_MS = 15000;
 const URL = "https://www.phonepe.com/apollo/job-postings/latest.json";
 
 const SOFTWARE_PATTERN =
   /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
-
-const INDIA_LOCATIONS = [
-  "india", "bengaluru", "bangalore", "hyderabad",
-  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
-];
 
 function log(message) {
   const timeText = new Date().toLocaleTimeString();
@@ -23,13 +17,19 @@ function isSoftwareJob(title) {
   return SOFTWARE_PATTERN.test(title || "");
 }
 
-// There was no location filter at all before, so any non-India posting went straight through
-// Whole words only, so "Indianapolis, Indiana" does not count as India
-const INDIA_LOCATION_REGEX = new RegExp(`\\b(?:${INDIA_LOCATIONS.join("|")})\\b`, "i");
+// These boards are almost all India, so a job counts as India unless its location names only foreign places.
+// A fixed list of Indian cities kept missing real ones (Kochi, Vadodara, Bhagalpur, Tirupati, ...)
+const INDIA_PLACES_REGEX =
+  /\b(?:india|pan[- ]?india|ncr|delhi|new delhi|okhla|gurgaon|gurugram|noida|faridabad|bengaluru|bangalore|hyderabad|mumbai|pune|chennai|kolkata|ahmedabad)\b/i;
+const FOREIGN_PLACES_REGEX =
+  /\b(?:uae|dubai|abu dhabi|saudi|riyadh|qatar|doha|singapore|japan|tokyo|thailand|bangkok|indonesia|jakarta|malaysia|philippines|vietnam|spain|madrid|italy|milan|united kingdom|uk|london|usa|united states|germany|france|netherlands|australia|canada)\b/i;
 
 function isIndiaLocation(locationText) {
   if (!locationText) return false;
-  return INDIA_LOCATION_REGEX.test(String(locationText));
+  const text = String(locationText);
+  // "Gurugram / Singapore / Dubai" mentions India, so it stays
+  if (INDIA_PLACES_REGEX.test(text)) return true;
+  return !FOREIGN_PLACES_REGEX.test(text);
 }
 
 function parseDotNetDate(dateStr) {
@@ -48,7 +48,7 @@ function getDaysSincePosted(dateStr, currentTimeInMilliseconds) {
 async function scrapePhonePe() {
   const currentTime = Date.now();
   const matchingJobs = [];
-  const skipCounts = { tooOld: 0, notSoftware: 0, notPublic: 0, notIndia: 0 };
+  const skipCounts = { notSoftware: 0, notPublic: 0, notIndia: 0 };
   
   log(`   Fetching all jobs from PhonePe...`);
 
@@ -90,11 +90,6 @@ async function scrapePhonePe() {
 
     const daysSincePosted = getDaysSincePosted(job.updatedAt, currentTime);
 
-    if (daysSincePosted > MAX_POSTING_AGE_DAYS) {
-      skipCounts.tooOld++;
-      continue;
-    }
-
     matchingJobs.push({
       id: String(job.id || job.applyUrl),
       company: "PhonePe",
@@ -107,7 +102,7 @@ async function scrapePhonePe() {
   }
 
   log(`   Checked ${jobs.length} jobs in total`);
-  log(`   Skipped: ${skipCounts.tooOld} too old, ${skipCounts.notSoftware} not software, ${skipCounts.notPublic} internal, ${skipCounts.notIndia} not India`);
+  log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notPublic} internal, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
   return matchingJobs;
