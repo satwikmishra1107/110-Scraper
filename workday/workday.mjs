@@ -18,9 +18,10 @@ const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
 
 // The AI-picked facets have no location filter for some companies (e.g. Mastercard, Expedia),
 // so every job is checked here too. Whole words, so "Indiana" doesn't count.
+// Some sites list only a town or state ("Nashik", "Gangaikondan", "telengana" with a typo), so those are here too.
 // "Oberoi Garden City" is BlackRock's Mumbai office, which Workday lists without the city.
 const INDIA_LOCATION_PATTERN =
-  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|oberoi garden city)\b/i;
+  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|nashik|hosur|bidadi|gangaikondan|bhiwadi|karnataka|telangana|telengana|maharashtra|tamil nadu|haryana|rajasthan|oberoi garden city)\b/i;
 // "3 Locations" hides the cities, so it can't be checked; keep it rather than miss an India job
 const MULTIPLE_LOCATIONS_PATTERN = /^\d+ Locations$/i;
 

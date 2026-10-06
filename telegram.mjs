@@ -44,7 +44,7 @@ const PING_PATTERN = wordPattern(PING_WORDS);
 
 // Same India check as workday.mjs. "3 Locations" or no location can't be checked, so they pass.
 const INDIA_LOCATION_PATTERN =
-  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|oberoi garden city)\b/i;
+  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|nashik|hosur|bidadi|gangaikondan|bhiwadi|karnataka|telangana|telengana|maharashtra|tamil nadu|haryana|rajasthan|oberoi garden city)\b/i;
 const MULTIPLE_LOCATIONS_PATTERN = /^\d+ Locations$/i;
 
 // A company's first run saves every open job, some posted months ago. Only ping recent postings.
