@@ -4,5 +4,9 @@
   { "company": "Meesho", "slug": "meesho" },
   { "company": "Spotify", "slug": "spotify" },
   { "company": "Freshworks", "slug": "freshworks" },
-  { "company": "Palantir Technologies", "slug": "palantir" }
+  { "company": "Palantir Technologies", "slug": "palantir" },
+  { "company": "Hevo Data", "slug": "hevodata" },
+  { "company": "Mindtickle", "slug": "mindtickle" },
+  { "company": "Zeta", "slug": "zeta" },
+  { "company": "FamPay", "slug": "fampay" }
 ]

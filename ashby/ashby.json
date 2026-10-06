@@ -3,5 +3,8 @@
   { "company": "Supabase", "slug": "supabase" },
   { "company": "Linear", "slug": "linear" },
   { "company": "Ramp", "slug": "ramp" },
-  { "company": "Snowflake", "slug": "snowflake" }
+  { "company": "Snowflake", "slug": "snowflake" },
+  { "company": "Sarvam AI", "slug": "sarvam" },
+  { "company": "Harvey", "slug": "harvey" },
+  { "company": "ClickHouse", "slug": "clickhouse" }
 ]

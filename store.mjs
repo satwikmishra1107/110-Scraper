@@ -9,8 +9,6 @@ const supabase = createClient(
 
 const BATCH_SIZE = 500;
 
-// ---------- Workday facet cache (table: workday_facets) ----------
-
 export async function loadFacetCache() {
   const { data, error } = await supabase.from("workday_facets").select("company, facets");
   if (error) throw new Error(`Supabase facet load failed: ${error.message}`);
@@ -29,14 +27,6 @@ export async function deleteFacet(company) {
   if (error) throw new Error(`Supabase facet delete failed: ${error.message}`);
 }
 
-// ---------- Jobs (table: jobs) ----------
-
-// How many days newer posted_date must be to count as a repost.
-// Workday's date is worked out from "Posted Today" with OUR clock (UTC), but Workday counts
-// "today" in the company's own time zone. Right after UTC midnight the two disagree by a day,
-// so every "Posted Today" job looked 1 day newer. A real repost jumps further than that.
-// Custom scrapers only give "N days ago", so their date is also worked out from our clock and can
-// wobble by a day between runs. Same fix: require a 2-day jump.
 const MIN_REPOST_GAP_DAYS = { workday: 2, custom: 2 };
 const DEFAULT_MIN_REPOST_GAP_DAYS = 1;
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -45,10 +35,8 @@ function daysBetween(olderDate, newerDate) {
   return Math.round((Date.parse(newerDate) - Date.parse(olderDate)) / MILLISECONDS_PER_DAY);
 }
 
-// Lookups go per company in small batches: a long `in (...)` list makes the request URL too long.
 const LOOKUP_BATCH_SIZE = 50;
 
-// Returns a Map of "company|job_id" → posted_date already stored, for the jobs that exist.
 async function loadStoredPostedDates(rows) {
   const jobIdsByCompany = new Map();
   for (const row of rows) {
@@ -73,9 +61,6 @@ async function loadStoredPostedDates(rows) {
   return storedPostedDates;
 }
 
-// A reposted job comes back to the board even if you archived it (e.g. because it had closed).
-// Only the archived flag changes; your status and note stay. Logs instead of throwing:
-// the jobs are already saved by now, so this shouldn't stop the run.
 async function unarchiveJobs(updatedJobs) {
   const jobIdsByCompany = new Map();
   for (const updatedJob of updatedJobs) {
@@ -95,11 +80,9 @@ async function unarchiveJobs(updatedJobs) {
   }
 }
 
-// Returns brand-new jobs plus updated jobs (is_update: true).
-// Updated = same company + job_id already stored, but the ATS now shows a newer posted_date (reposted/edited).
 export async function saveJobsAndGetNew(jobs) {
   const unique = [...new Map(jobs.map((job) => [`${job.company}|${job.job_id}`, job])).values()];
-  const rows = unique.map(({ scraped_at, ...row }) => row); // scraped_at isn't a column
+  const rows = unique.map(({ scraped_at, ...row }) => row); 
 
   const storedPostedDates = await loadStoredPostedDates(rows);
   const rowsToInsert = [];
@@ -113,10 +96,8 @@ export async function saveJobsAndGetNew(jobs) {
     const storedPostedDate = storedPostedDates.get(jobKey);
     const minimumGapDays = MIN_REPOST_GAP_DAYS[row.source] ?? DEFAULT_MIN_REPOST_GAP_DAYS;
     if (row.posted_date && storedPostedDate && daysBetween(storedPostedDate, row.posted_date) >= minimumGapDays) {
-      // first_seen_at stays as the true first-seen time; reposted_at is what moves it back up the board
       rowsToMarkUpdated.push({ ...row, is_update: true, reposted_at: new Date().toISOString() });
     }
-    // otherwise: same job, same date → nothing to do
   }
 
   const newJobs = [];
@@ -125,7 +106,7 @@ export async function saveJobsAndGetNew(jobs) {
       .from("jobs")
       .upsert(rowsToInsert.slice(batchStart, batchStart + BATCH_SIZE), {
         onConflict: "company,job_id",
-        ignoreDuplicates: true, // ON CONFLICT DO NOTHING
+        ignoreDuplicates: true, 
       })
       .select();
     if (error) throw new Error(`Supabase insert failed: ${error.message}`);
@@ -137,7 +118,7 @@ export async function saveJobsAndGetNew(jobs) {
     const { data, error } = await supabase
       .from("jobs")
       .upsert(rowsToMarkUpdated.slice(batchStart, batchStart + BATCH_SIZE), {
-        onConflict: "company,job_id", // row exists → overwrite its columns (ON CONFLICT DO UPDATE)
+        onConflict: "company,job_id", 
       })
       .select();
     if (error) throw new Error(`Supabase update failed: ${error.message}`);
@@ -148,21 +129,12 @@ export async function saveJobsAndGetNew(jobs) {
   return [...newJobs, ...updatedJobs];
 }
 
-// ---------- Hidden titles (table: hidden_titles) ----------
-
-// Titles you marked "Always hide this title" on the dashboard, already normalized there.
 export async function loadHiddenTitles() {
   const { data, error } = await supabase.from("hidden_titles").select("title");
   if (error) throw new Error(`Supabase hidden titles load failed: ${error.message}`);
   return new Set(data.map((row) => row.title));
 }
 
-// ---------- Scraper runs (table: runs) ----------
-
-// Called once at the end of a run. Logs on failure instead of throwing,
-// so a failed health-log insert never crashes the scraper.
-// GITHUB_RUN_ID is shared by every step of one workflow run; it's missing on local runs (→ null).
-// savedJobs = what saveJobsAndGetNew() returned; each company's entry gets its new / updated counts.
 export async function saveRun(source, companyResults, savedJobs = []) {
   const githubRunId = process.env.GITHUB_RUN_ID ? Number(process.env.GITHUB_RUN_ID) : null;
 
@@ -185,4 +157,4 @@ export async function saveRun(source, companyResults, savedJobs = []) {
     report: reportWithCounts,
   });
   if (error) console.error(`Supabase run insert failed (${source}): ${error.message}`);
-}
+}

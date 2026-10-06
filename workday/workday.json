@@ -19,5 +19,17 @@
   { "name": "PayPal", "url": "https://paypal.wd1.myworkdayjobs.com/wday/cxs/paypal/jobs/jobs" },
   { "name": "Springer Nature", "url": "https://springernature.wd3.myworkdayjobs.com/wday/cxs/springernature/SpringerNatureCareers/jobs" },
   { "name": "Slack", "url": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/Slack/jobs" },
-  { "name": "Cisco", "url": "https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs" }
+  { "name": "Cisco", "url": "https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs" },
+  { "name": "Motorola Solutions", "url": "https://motorolasolutions.wd5.myworkdayjobs.com/wday/cxs/motorolasolutions/Careers/jobs" },
+  { "name": "Micron", "url": "https://micron.wd1.myworkdayjobs.com/wday/cxs/micron/External/jobs" },
+  { "name": "Analog Devices", "url": "https://analogdevices.wd1.myworkdayjobs.com/wday/cxs/analogdevices/External/jobs" },
+  { "name": "Cadence", "url": "https://cadence.wd1.myworkdayjobs.com/wday/cxs/cadence/External_Careers/jobs" },
+  { "name": "Target", "url": "https://target.wd5.myworkdayjobs.com/wday/cxs/target/targetcareers/jobs" },
+  { "name": "Autodesk", "url": "https://autodesk.wd1.myworkdayjobs.com/wday/cxs/autodesk/Ext/jobs" },
+  { "name": "CrowdStrike", "url": "https://crowdstrike.wd5.myworkdayjobs.com/wday/cxs/crowdstrike/crowdstrikecareers/jobs" },
+  { "name": "HP", "url": "https://hp.wd5.myworkdayjobs.com/wday/cxs/hp/ExternalCareerSite/jobs" },
+  { "name": "Lowe's", "url": "https://lowes.wd5.myworkdayjobs.com/wday/cxs/lowes/LWS_External_CS/jobs" },
+  { "name": "Fidelity", "url": "https://fmr.wd1.myworkdayjobs.com/wday/cxs/fmr/FidelityCareers/jobs" },
+  { "name": "Workday", "url": "https://workday.wd5.myworkdayjobs.com/wday/cxs/workday/Workday/jobs" },
+  { "name": "Sprinklr", "url": "https://sprinklr.wd1.myworkdayjobs.com/wday/cxs/sprinklr/careers/jobs" }
 ]

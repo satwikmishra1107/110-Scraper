@@ -22,5 +22,16 @@
   { "company": "Vercel", "slug": "vercel" },
   { "company": "HubSpot", "slug": "hubspot" },
   { "company": "DoorDash", "slug": "doordashindia" },
-  { "company": "Rapido", "slug": "rapidosolutionsgroup" }
+  { "company": "Rapido", "slug": "rapidosolutionsgroup" },
+  { "company": "Okta", "slug": "okta" },
+  { "company": "Zscaler", "slug": "zscaler" },
+  { "company": "Pure Storage", "slug": "purestorage" },
+  { "company": "Coupang", "slug": "coupang" },
+  { "company": "Commvault", "slug": "commvault" },
+  { "company": "Tower Research Capital", "slug": "towerresearchcapital" },
+  { "company": "Druva", "slug": "druva" },
+  { "company": "Agoda", "slug": "agoda" },
+  { "company": "Samsara", "slug": "samsara" },
+  { "company": "Zenoti", "slug": "zenoti" },
+  { "company": "InMobi", "slug": "inmobi" }
 ]

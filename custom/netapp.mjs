@@ -1,0 +1,222 @@
+// custom/netapp.mjs | run: node custom/netapp.mjs
+// Same Eightfold v2 jobs API as hsbc.mjs and netflix.mjs, so this file mirrors them
+import { pathToFileURL } from "node:url";
+
+// ---------- Settings ----------
+const JOBS_PER_PAGE = 50;
+// Safety cap only: the API returns 10 jobs per page whatever num asks for, so this allows 1000 jobs
+const MAX_PAGES_TO_FETCH = 100;
+const REQUEST_TIMEOUT_MS = 15000;
+
+const SD_KEYWORDS = [
+  "software",
+  "engineer",
+  "engineering",
+  "technical",
+  "developer",
+  "backend",
+  "frontend",
+  "back-end",
+  "front-end",
+  "full stack",
+  "full-stack",
+  "system",
+  "architect",
+  "ui",
+  "ux",
+  "sde",
+  "sdet",
+  "react",
+  "node",
+  "java",
+  "c\\+\\+",
+  "typescript",
+  "mongo",
+];
+
+// Matches whole words, optionally ending with 's' or 'ing'
+const SD_REGEX = new RegExp(`\\b(?:${SD_KEYWORDS.join("|")})(?:s|ing)?\\b`, "i");
+const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
+
+const INDIA_LOCATIONS = [
+  "india", "bengaluru", "bangalore", "hyderabad", 
+  "mumbai", "pune", "gurgaon", "noida", "delhi", "chennai"
+];
+
+// ---------- Helpers ----------
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function log(message) {
+  const timeText = new Date().toLocaleTimeString();
+  console.log(`[${timeText}] ${message}`);
+}
+
+function isSoftwareJob(title, department) {
+  return SD_REGEX.test(title || "") || SD_REGEX.test(department || "");
+}
+
+function isIndiaLocation(locationText) {
+  if (!locationText) return false;
+  const locLower = locationText.toLowerCase();
+  
+  if (locLower.includes("india")) return true;
+  if (INDIA_LOCATIONS.some(city => locLower.includes(city))) return true;
+  
+  return false;
+}
+
+function getDaysSincePosted(timestampSeconds, currentTimeInMilliseconds) {
+  if (!timestampSeconds) return 0;
+  // Eightfold timestamps are in seconds, so we multiply by 1000 for JS
+  const postedDate = new Date(timestampSeconds * 1000);
+  if (isNaN(postedDate.getTime())) return 0;
+  return Math.floor((currentTimeInMilliseconds - postedDate.getTime()) / MILLISECONDS_IN_ONE_DAY);
+}
+
+// ---------- Scraper Logic ----------
+async function scrapeNetApp() {
+  const currentTime = Date.now();
+  const matchingJobs = [];
+  const skipCounts = { notSoftware: 0, notIndia: 0 };
+  
+  let startOffset = 0;
+  let totalJobsChecked = 0;
+  let totalJobsInAPI = Infinity;
+
+  for (let page = 0; page < MAX_PAGES_TO_FETCH && startOffset < totalJobsInAPI; page++) {
+    log(`   Fetching page ${page + 1} (offset ${startOffset})...`);
+    
+    // The standard Eightfold search endpoint
+    const apiUrl = `https://netapp.eightfold.ai/api/apply/v2/jobs?domain=netapp.com&location=India&start=${startOffset}&num=${JOBS_PER_PAGE}`;
+    
+    let response;
+    let success = false;
+
+    // 429 Retry Loop (Up to 3 attempts per page - Eightfold is strict!)
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await fetch(apiUrl, {
+          headers: {
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          },
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+
+        if (response.status === 429) {
+          log(`     ⚠️ 429 Rate Limited. Cooling down for ${attempt * 3} seconds...`);
+          await delay(attempt * 3000);
+          continue;
+        }
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        success = true;
+        break; 
+      } catch (err) {
+        if (attempt === 3) throw err;
+      }
+    }
+
+    if (!success) throw new Error("Hit maximum 429 rate limits. Giving up.");
+
+    const data = await response.json();
+    // A missing positions array means the API shape changed; fail loudly instead of reporting 0 jobs
+    if (!Array.isArray(data.positions)) {
+      throw new Error(`Unexpected API response on page ${page + 1}: no positions array`);
+    }
+    const positions = data.positions;
+    
+    if (page === 0) {
+      totalJobsInAPI = data.count || positions.length;
+      log(`   API reports ${totalJobsInAPI} total jobs in India`);
+    }
+
+    if (positions.length === 0) break;
+
+    for (const job of positions) {
+      totalJobsChecked++;
+
+      if (!isIndiaLocation(job.location)) {
+        skipCounts.notIndia++;
+        continue;
+      }
+
+      if (!isSoftwareJob(job.name, job.department)) {
+        skipCounts.notSoftware++;
+        continue;
+      }
+      
+      // t_create is when the job was posted; t_update changes on every edit
+      const daysSincePosted = getDaysSincePosted(job.t_create || job.t_update, currentTime);
+
+      const jobUrl = job.canonicalPositionUrl || `https://netapp.eightfold.ai/careers/job/${job.id}`;
+
+      matchingJobs.push({
+        id: String(job.id),
+        company: "NetApp",
+        title: job.name,
+        department: job.department || "N/A",
+        location: job.location || "India",
+        daysSincePosted: daysSincePosted,
+        url: jobUrl
+      });
+    }
+
+    // Move on by what actually came back: the API caps pages at 10, so adding JOBS_PER_PAGE skipped 40 of every 50 jobs
+    startOffset += positions.length;
+    if (startOffset < totalJobsInAPI) await delay(1000);
+  }
+
+  log(`   Checked ${totalJobsChecked} jobs in total`);
+  log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
+  log(`   Kept: ${matchingJobs.length}`);
+
+  return matchingJobs;
+}
+
+// ---------- Main ----------
+export async function main() {
+  const startTime = Date.now();
+  log(`Starting NetApp scraper...`);
+  console.log("");
+
+  let allJobs = [];
+  let scrapeFailed = false;
+  let errorMessage = null;
+
+  try {
+    allJobs = await scrapeNetApp();
+    log(`✅ NetApp done`);
+  } catch (error) {
+    scrapeFailed = true;
+    errorMessage = error.message;
+    log(`❌ NetApp failed: ${error.message}`);
+  }
+
+  console.log("\n" + "=".repeat(60));
+  console.log(`RESULTS: ${allJobs.length} jobs found`);
+  console.log("=".repeat(60));
+
+  allJobs.forEach((job, jobIndex) => {
+    const postedText = typeof job.daysSincePosted === 'number' 
+      ? (job.daysSincePosted <= 0 ? "Today" : `${job.daysSincePosted} days ago`) 
+      : job.daysSincePosted;
+
+    console.log(`${jobIndex + 1}. [${job.company}] ${job.title} (${job.department})`);
+    console.log(`   Location: ${job.location} | Posted: ${postedText}`);
+    console.log(`   Link: ${job.url}\n`);
+  });
+
+  log(`Finished in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`);
+  if (scrapeFailed) log(`⚠️ Scraper failed to finish correctly.`);
+
+  // Hand the results back to whoever called main() (the common custom runner)
+  return { allJobs, scrapeFailed, errorMessage };
+}
+
+// Run main() only when started directly (node custom/<file>.mjs),
+// not when the common custom runner imports this file
+const isRunDirectly = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isRunDirectly) {
+  await main();
+}

@@ -26,10 +26,13 @@ const CUSTOM_SCRAPERS = [
   { file: "meta.mjs", companies: ["Meta"] },
   { file: "microsoft.mjs", companies: ["Microsoft"] },
   { file: "myntra.mjs", companies: ["Myntra"] },
+  { file: "netapp.mjs", companies: ["NetApp"] },
   { file: "netflix.mjs", companies: ["Netflix"] },
   { file: "oracle.mjs", companies: ["Oracle"] },
   { file: "phonepe.mjs", companies: ["PhonePe"] },
   { file: "postman.mjs", companies: ["Postman"] },
+  { file: "qualcomm.mjs", companies: ["Qualcomm"] },
+  { file: "rippling.mjs", companies: ["Rippling"] },
   { file: "zoho.mjs", companies: ["Zoho"] },
 ];
 
