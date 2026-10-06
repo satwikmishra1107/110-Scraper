@@ -16,6 +16,19 @@ const REQUEST_TIMEOUT_MS = 30_000;
 
 const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
 
+// The AI-picked facets have no location filter for some companies (e.g. Mastercard, Expedia),
+// so every job is checked here too. Whole words, so "Indiana" doesn't count.
+// "Oberoi Garden City" is BlackRock's Mumbai office, which Workday lists without the city.
+const INDIA_LOCATION_PATTERN =
+  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|oberoi garden city)\b/i;
+// "3 Locations" hides the cities, so it can't be checked; keep it rather than miss an India job
+const MULTIPLE_LOCATIONS_PATTERN = /^\d+ Locations$/i;
+
+function isIndiaOrUnclear(locationsText) {
+  if (!locationsText) return true;
+  return INDIA_LOCATION_PATTERN.test(locationsText) || MULTIPLE_LOCATIONS_PATTERN.test(locationsText.trim());
+}
+
 const delay = (milliseconds) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
 
@@ -257,7 +270,9 @@ async function scrapeCompany(company, scrapedAt, isRetry = false) {
           calculateDaysSincePosting(job.postedOn) <= MAX_POSTING_AGE_DAYS,
       );
       collectedJobs.push(
-        ...recentJobsOnPage.map((job) => toNormalizedJob(company, job, scrapedAt)),
+        ...recentJobsOnPage
+          .filter((job) => isIndiaOrUnclear(job.locationsText))
+          .map((job) => toNormalizedJob(company, job, scrapedAt)),
       );
 
       stalePages = recentJobsOnPage.length ? 0 : stalePages + 1;

@@ -12,20 +12,58 @@ const SOURCE_LABELS = {
   smartrecruiters: "SmartRecruiters",
 };
 
-// Titles with these words don't get a Telegram ping.
+// A ping is stricter than the board: the title must pass all three word checks below.
 // Whole words only: "lead" skips "Tech Lead" but not "Leading..."; "sr" also catches "Sr." and "Sr".
-// Keep in step with AUTO_HIDE_WORDS in the dashboard (job-board/src/lib/constants.js).
-const SKIPPED_SENIORITY_WORDS = [
-  "senior", "sr", "lead", "staff", "principal", "director", "manager", "mgr", "head",
-  "architect", "vp", "vice president", "distinguished", "fellow", "iii", "iv",
-  "intern", "internship", "tester",
+
+// 1. Kept off the board too. Keep in step with AUTO_HIDE_WORDS in job-board/src/lib/constants.js.
+const AUTO_HIDE_WORDS = [
+  "senior", "sr", "lead", "leadership", "staff", "principal", "director", "manager", "mgr", "head",
+  "architect", "vp", "vice president", "distinguished", "fellow", "iv",
+  "smts", "lmts", "pmts", // Salesforce's Senior / Lead / Principal Member of Technical Staff
+  "intern", "internship", "campus hire",
   "ai", "ml", "ai/ml", "machine learning", "llm", "genai", "gen ai", "generative",
   "deep learning", "data scientist", "nlp", "computer vision",
+  "salesforce", "servicenow", "sap", "cpq", "certinia", "consultant", "escalation",
+  "professional services", "technology operations", "network security",
 ];
-const SENIORITY_PATTERN = new RegExp(`\\b(${SKIPPED_SENIORITY_WORDS.join("|")})\\b`, "i");
+// 2. Shown on the board, but not worth a ping: testing, ops and low-level/embedded work
+const NO_PING_WORDS = [
+  "tester", "test", "testing", "qa", "sdet", "automation", "sre", "site reliability", "devops",
+  "embedded", "firmware", "kernel", "driver", "drivers", "dsp", "modem", "wlan", "silicon",
+];
+// 3. A ping needs at least one of these
+const PING_WORDS = [
+  "software", "sde", "swe", "developer", "development engineer", "mts", "member of technical staff",
+  "backend", "back-end", "back end", "frontend", "front-end", "front end", "full stack", "full-stack", "fullstack",
+  "web", "java", "python", "node", "nodejs", "react", "angular", "golang", "typescript", "ios", "android",
+];
+const wordPattern = (words) => new RegExp(`\\b(${words.join("|")})\\b`, "i");
+const AUTO_HIDE_PATTERN = wordPattern(AUTO_HIDE_WORDS);
+const NO_PING_PATTERN = wordPattern(NO_PING_WORDS);
+const PING_PATTERN = wordPattern(PING_WORDS);
 
-function isTooSenior(title) {
-  return SENIORITY_PATTERN.test(title || "");
+// Same India check as workday.mjs. "3 Locations" or no location can't be checked, so they pass.
+const INDIA_LOCATION_PATTERN =
+  /\b(india|bengaluru|bangalore|hyderabad|mumbai|pune|gurgaon|gurugram|noida|delhi|chennai|kolkata|ahmedabad|oberoi garden city)\b/i;
+const MULTIPLE_LOCATIONS_PATTERN = /^\d+ Locations$/i;
+
+// A company's first run saves every open job, some posted months ago. Only ping recent postings.
+const MAX_PING_POSTING_AGE_DAYS = 3;
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// Returns why a job gets no ping, or null if it should get one
+function getSkipReason(job) {
+  // "Engineer, Staff_CE" → "Engineer, Staff CE": "_" counts as part of a word, which would hide "Staff"
+  const title = (job.title || "").replace(/_/g, " ");
+  if (AUTO_HIDE_PATTERN.test(title) || NO_PING_PATTERN.test(title) || !PING_PATTERN.test(title)) return "title";
+
+  const location = (job.location || "").trim();
+  if (location && !INDIA_LOCATION_PATTERN.test(location) && !MULTIPLE_LOCATIONS_PATTERN.test(location)) return "not India";
+
+  const postedTime = Date.parse(job.posted_date);
+  if (Number.isFinite(postedTime) && Date.now() - postedTime > MAX_PING_POSTING_AGE_DAYS * MILLISECONDS_PER_DAY) return "old posting";
+
+  return null;
 }
 
 // Same rule as the dashboard: "  Talent  Acquisition " → "talent acquisition"
@@ -91,11 +129,15 @@ export async function sendTelegramAlerts(source, jobs) {
     console.error(`Telegram: ${error.message} — sending without the hidden-title filter.`);
   }
 
-  const jobsToAlert = jobs.filter(
-    (job) => !hiddenTitles.has(normalizeTitle(job.title)) && !isTooSenior(job.title),
-  );
+  const jobsToAlert = [];
+  const skipCounts = {};
+  for (const job of jobs) {
+    const skipReason = hiddenTitles.has(normalizeTitle(job.title)) ? "hidden title" : getSkipReason(job);
+    if (skipReason) skipCounts[skipReason] = (skipCounts[skipReason] ?? 0) + 1;
+    else jobsToAlert.push(job);
+  }
   const skippedCount = jobs.length - jobsToAlert.length;
-  if (skippedCount > 0) console.log(`Telegram: skipped ${skippedCount} job(s) — hidden or senior titles.`);
+  if (skippedCount > 0) console.log(`Telegram: skipped ${skippedCount} job(s) — ${JSON.stringify(skipCounts)}`);
   if (jobsToAlert.length === 0) return;
 
   let failedCount = 0;
