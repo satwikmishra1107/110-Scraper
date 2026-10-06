@@ -32,7 +32,7 @@ const SD_KEYWORDS = [
   "react",
   "node",
   "java",
-  "c\\+\\+", // + must be escaped: an unescaped "c++" crashes the regex below
+  "c\\+\\+",
   "typescript",
   "mongo",
 ];

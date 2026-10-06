@@ -12,11 +12,15 @@ const SOURCE_LABELS = {
   smartrecruiters: "SmartRecruiters",
 };
 
-// Titles with these words don't get a Telegram ping (they still appear on the board).
+// Titles with these words don't get a Telegram ping.
 // Whole words only: "lead" skips "Tech Lead" but not "Leading..."; "sr" also catches "Sr." and "Sr".
+// Keep in step with AUTO_HIDE_WORDS in the dashboard (job-board/src/lib/constants.js).
 const SKIPPED_SENIORITY_WORDS = [
-  "senior", "sr", "lead", "staff", "principal", "director", "manager", "head",
-  "architect", "vp", "vice president", "distinguished", "fellow", "intern", "tester"
+  "senior", "sr", "lead", "staff", "principal", "director", "manager", "mgr", "head",
+  "architect", "vp", "vice president", "distinguished", "fellow", "iii", "iv",
+  "intern", "internship", "tester",
+  "ai", "ml", "ai/ml", "machine learning", "llm", "genai", "gen ai", "generative",
+  "deep learning", "data scientist", "nlp", "computer vision",
 ];
 const SENIORITY_PATTERN = new RegExp(`\\b(${SKIPPED_SENIORITY_WORDS.join("|")})\\b`, "i");
 
