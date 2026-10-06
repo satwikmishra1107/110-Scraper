@@ -11,8 +11,18 @@ const DELAY_BETWEEN_PAGES_MS = 5000;
 // Eightfold's 429 has no Retry-After, so wait this long per attempt (30s, then 60s) before retrying
 const RATE_LIMIT_COOLDOWN_MS = 30000;
 
+// Qualcomm is mostly hardware, and nearly every title says "Engineer", so titles can't tell
+// software from chip design. The department can: keep only these ones.
+// Left out on purpose: Hardware / ASICS / Systems / Systems Test Engineering, IT Data Engineer, interns.
+const SOFTWARE_DEPARTMENTS = new Set([
+  "software engineering",
+  "software applications engineering",
+  "it software developer",
+  "it programmer analyst",
+]);
+// Only used when a job has no department
 const SOFTWARE_PATTERN =
-  /\b(software|engineers?|engineering|technical|developers?|developer|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|systems?|architect|ui|ux|react|node|java|c\+\+|typescript|mongo)\b/i;
+  /\b(software|developers?|sde|sdet|backend|back-end|frontend|front-end|full[- ]?stack|react|node|java|typescript)\b/i;
 const MILLISECONDS_IN_ONE_DAY = 24 * 60 * 60 * 1000;
 
 const INDIA_LOCATIONS = [
@@ -29,7 +39,8 @@ function log(message) {
 }
 
 function isSoftwareJob(title, department) {
-  return SOFTWARE_PATTERN.test(title || "") || SOFTWARE_PATTERN.test(department || "");
+  if (department) return SOFTWARE_DEPARTMENTS.has(department.trim().toLowerCase());
+  return SOFTWARE_PATTERN.test(title || "");
 }
 
 // The API's location=India is a search hint, not a guarantee, so check each job too (same as HSBC)
