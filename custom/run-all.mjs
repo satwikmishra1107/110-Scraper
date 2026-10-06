@@ -21,6 +21,7 @@ const CUSTOM_SCRAPERS = [
   { file: "flipkart.mjs", companies: ["Flipkart"] },
   { file: "google.mjs", companies: ["Google"] },
   { file: "hsbc.mjs", companies: ["HSBC"] },
+  { file: "hubspot.mjs", companies: ["HubSpot"] },
   { file: "lenskart.mjs", companies: ["Lenskart"] },
   { file: "makemytrip.mjs", companies: ["MakeMyTrip"] },
   { file: "meta.mjs", companies: ["Meta"] },
