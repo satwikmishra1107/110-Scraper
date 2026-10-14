@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import "dotenv/config";
 import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet, saveRun } from "../store.mjs";
 import { sendTelegramAlerts } from "../telegram.mjs";
+import { callGemini, parseGeminiJson } from "../gemini.mjs";
 
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
@@ -98,70 +99,6 @@ function flattenFacetTree(nodes, parentParameterName = null, flatList = []) {
   return flatList;
 }
 
-const MAX_GEMINI_RETRY_WAIT_MS = 90_000;
-
-function getGeminiRetryDelayMs(geminiError) {
-  const retryInfo = geminiError.details?.find((d) => d["@type"]?.endsWith("RetryInfo"));
-  const fromDetails = retryInfo?.retryDelay?.match(/^([\d.]+)s$/);
-  if (fromDetails) return Math.ceil(Number(fromDetails[1]) * 1000);
- 
-  const fromMessage = geminiError.message?.match(/retry in ([\d.]+)s/i);
-  if (fromMessage) return Math.ceil(Number(fromMessage[1]) * 1000);
- 
-  return null;
-}
-
-async function callGeminiWithRetry(prompt, maxAttempts = 4) {
-  let lastError;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_VERSION}:generateContent`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": process.env.GEMINI_API_KEY,
-          },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: "application/json" },
-          }),
-          signal: AbortSignal.timeout(60_000),
-        },
-      );
- 
-      if (response.ok) return response.json();
- 
-      const body = await response.text();
-      let reason = body.slice(0, 300);
-      let serverRetryDelayMs = null;
-      try {
-        const parsed = JSON.parse(body).error ?? {};
-        reason = parsed.message ?? reason;
-        serverRetryDelayMs = getGeminiRetryDelayMs(parsed);
-      } catch {}
-      lastError = new Error(`Gemini API Error ${response.status}: ${reason}`);
-      lastError.retryDelayMs = serverRetryDelayMs;
- 
-      const retryable = response.status === 429 || response.status >= 500;
-      if (!retryable) throw lastError; 
-    } catch (error) {
-      if (error === lastError) throw error;
-      lastError = new Error(`Gemini request failed: ${error.name === "TimeoutError" ? "timed out after 60s" : error.message}`);
-    }
- 
-    if (attempt < maxAttempts) {
-      const waitMs = lastError.retryDelayMs
-        ? Math.min(lastError.retryDelayMs + 1000, MAX_GEMINI_RETRY_WAIT_MS)
-        : 5000 * attempt;
-      console.log(`  └─ ${lastError.message} — retrying in ${waitMs / 1000}s (attempt ${attempt}/${maxAttempts})`);
-      await delay(waitMs);
-    }
-  }
-  throw new Error(`${lastError.message} (gave up after ${maxAttempts} attempts)`);
-}
-
 async function selectFacetsUsingAI(availableFacets) {
   const flattenedFacets = flattenFacetTree(availableFacets);
 
@@ -171,21 +108,8 @@ async function selectFacetsUsingAI(availableFacets) {
     `Use only ids from the list above. Return ONLY a JSON object mapping parameterName to an array of ids, ` +
     `e.g. {"locationHierarchy1":["id1"],"jobFamilyGroup":["id2","id3"]}`;
 
-  const responseData = await callGeminiWithRetry(prompt);
-  const generatedText =
-    responseData.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text)
-      .join("") ?? "";
-
-  let aiSelectedFacets;
-  try {
-    aiSelectedFacets = JSON.parse(generatedText.replace(/```json|```/g, "").trim());
-  } catch {
-    throw new Error(
-      `Gemini returned invalid JSON (finishReason: ${responseData.candidates?.[0]?.finishReason ?? "unknown"}): ` +
-        `${generatedText.slice(0, 200) || "<empty response>"}`,
-    );
-  }
+  const responseData = await callGemini({ apiKey: process.env.GEMINI_API_KEY, model: GEMINI_MODEL_VERSION, prompt });
+  const aiSelectedFacets = parseGeminiJson(responseData);
 
   const validFacetIds = new Set(flattenedFacets.map((facet) => facet.id));
   const validatedFacets = {};

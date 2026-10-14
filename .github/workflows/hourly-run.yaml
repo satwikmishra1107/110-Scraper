@@ -57,3 +57,8 @@ jobs:
       - name: Run Custom scraper
         if: ${{ !cancelled() }}
         run: node custom/run-all.mjs
+
+      # 5. After every scraper: fetch descriptions for Board jobs and score them against each person's resume
+      - name: Score jobs against resumes
+        if: ${{ !cancelled() }}
+        run: node score/score-jobs.mjs

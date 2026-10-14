@@ -51,6 +51,11 @@ const MULTIPLE_LOCATIONS_PATTERN = /^\d+ Locations$/i;
 const MAX_PING_POSTING_AGE_DAYS = 3;
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
+/** True when the title keeps the job off the board (the auto-hide word list). Also used by score/score-jobs.mjs. */
+export function isAutoHiddenTitle(title) {
+  return AUTO_HIDE_PATTERN.test((title || "").replace(/_/g, " "));
+}
+
 // Returns why a job gets no ping, or null if it should get one
 function getSkipReason(job) {
   // "Engineer, Staff_CE" → "Engineer, Staff CE": "_" counts as part of a word, which would hide "Staff"
@@ -67,7 +72,7 @@ function getSkipReason(job) {
 }
 
 // Same rule as the dashboard: "  Talent  Acquisition " → "talent acquisition"
-function normalizeTitle(title) {
+export function normalizeTitle(title) {
   return (title || "").trim().replace(/\s+/g, " ").toLowerCase();
 }
 
