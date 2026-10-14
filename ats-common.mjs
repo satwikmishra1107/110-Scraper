@@ -76,12 +76,13 @@ export const loadCompanies = (path) =>
   JSON.parse(fs.readFileSync(path, "utf8"));
 
 // GET JSON with timeout; retries network errors, 429 and 5xx. Other statuses (404 = bad slug) fail fast.
-export async function fetchJson(url, maxAttempts = 4) {
+// `headers` is for sites that turn away requests without a browser User-Agent (score/descriptions.mjs).
+export async function fetchJson(url, { headers = {}, maxAttempts = 4 } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const res = await fetch(url, {
-        headers: { Accept: "application/json" },
+        headers: { Accept: "application/json", ...headers },
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (res.ok) return await res.json();

@@ -2,7 +2,7 @@
 // Runs after every scraper in the hourly workflow. Scores Board jobs against each person's resume,
 // with that person's own Gemini key (both saved from the dashboard's "Resume match" panel).
 //
-//   1. Board jobs: found or reposted in the last 7 days, from the five ATS platforms,
+//   1. Board jobs: found or reposted in the last 7 days, from the platforms and custom sites descriptions.mjs can read,
 //      minus auto-hidden titles, "always hide" titles and archived jobs — same rules as the dashboard
 //   2. Fetch the description of every one that doesn't have one yet → jobs.description
 //   3. For each person with a resume and a key: score the jobs they have no score for yet, newest first → job_scores
@@ -11,7 +11,7 @@ import { delay } from "../ats-common.mjs";
 import { callGemini, parseGeminiJson } from "../gemini.mjs";
 import { loadHiddenTitles, supabase } from "../store.mjs";
 import { isAutoHiddenTitle, normalizeTitle } from "../telegram.mjs";
-import { SOURCES_WITH_DESCRIPTIONS, fetchDescription } from "./descriptions.mjs";
+import { SOURCES_WITH_DESCRIPTIONS, canFetchDescription, fetchDescription } from "./descriptions.mjs";
 
 const GEMINI_MODEL = "gemini-3.5-flash-lite"; // same model as workday.mjs
 const BOARD_DAYS = 7;
@@ -47,7 +47,7 @@ async function loadBoardJobs() {
       () =>
         supabase
           .from("jobs")
-          .select("source, company, job_id, title, location, first_seen_at, reposted_at, description, description_checked_at")
+          .select("source, company, job_id, title, location, url, first_seen_at, reposted_at, description, description_checked_at")
           .in("source", SOURCES_WITH_DESCRIPTIONS)
           .or(`first_seen_at.gte."${since}",reposted_at.gte."${since}"`)
           .order("company")
@@ -65,6 +65,7 @@ async function loadBoardJobs() {
   return jobs
     .filter(
       (job) =>
+        canFetchDescription(job) &&
         !isAutoHiddenTitle(job.title) &&
         !hiddenTitles.has(normalizeTitle(job.title)) &&
         !archivedKeys.has(makeJobKey(job.company, job.job_id)),
