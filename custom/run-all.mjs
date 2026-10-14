@@ -21,9 +21,7 @@ const CUSTOM_SCRAPERS = [
   { file: "flipkart.mjs", companies: ["Flipkart"] },
   { file: "google.mjs", companies: ["Google"] },
   { file: "hsbc.mjs", companies: ["HSBC"] },
-  { file: "hubspot.mjs", companies: ["HubSpot"] },
   { file: "lenskart.mjs", companies: ["Lenskart"] },
-  { file: "makemytrip.mjs", companies: ["MakeMyTrip"] },
   { file: "meta.mjs", companies: ["Meta"] },
   { file: "microsoft.mjs", companies: ["Microsoft"] },
   { file: "myntra.mjs", companies: ["Myntra"] },
@@ -34,11 +32,10 @@ const CUSTOM_SCRAPERS = [
   { file: "postman.mjs", companies: ["Postman"] },
   { file: "qualcomm.mjs", companies: ["Qualcomm"] },
   { file: "rippling.mjs", companies: ["Rippling"] },
-  { file: "zoho.mjs", companies: ["Zoho"] },
 ];
 
 // Custom scrapers give "days since posted", not a raw date, so the date is worked out from the run time.
-// null (Google, Meta, Zoho without a date) stays null: those jobs are deduped by job_id only.
+// null (Google, Meta, Rippling: no date shown) stays null: those jobs are deduped by job_id only.
 function toPostedDate(daysSincePosted, scrapedAt) {
   if (typeof daysSincePosted !== "number") return null;
   const postedTime = Date.parse(scrapedAt) - daysSincePosted * MILLISECONDS_PER_DAY;

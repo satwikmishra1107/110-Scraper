@@ -1,7 +1,6 @@
 // score/descriptions.mjs — a job's full description, read from its platform's public API.
 // The five ATS platforms, plus the custom sites (custom/*.mjs) that have an API. Not yet: the sites scraped
-// in a browser (Google, Meta, Airtel, Delhivery, Flipkart), and HubSpot, MakeMyTrip and Zoho, whose APIs
-// don't give the full description. Their jobs have no description, and so no score.
+// in a browser (Google, Meta, Airtel, Delhivery, Flipkart). Their jobs have no description, and so no score.
 import { fetchJson, loadCompanies } from "../ats-common.mjs";
 
 const MAX_DESCRIPTION_CHARS = 20_000; // a few very long postings repeat the same boilerplate; this is plenty
