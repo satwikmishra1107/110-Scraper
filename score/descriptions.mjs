@@ -5,18 +5,21 @@ import { fetchJson, loadCompanies } from "../ats-common.mjs";
 
 const MAX_DESCRIPTION_CHARS = 20_000; // a few very long postings repeat the same boilerplate; this is plenty
 
-// Each scraper's company list: maps the stored company name back to its API address / slug
-const COMPANY_LISTS = {
-  workday: loadCompanies("./workday/workday.json"), // { name, url }
-  greenhouse: loadCompanies("./greenhouse/greenhouse.json"), // { company, slug }
-  lever: loadCompanies("./lever/lever.json"),
-  ashby: loadCompanies("./ashby/ashby.json"),
-  smartrecruiters: loadCompanies("./smartrecruiters/smartrecruiters.json"),
+// Each scraper's company list: maps the stored company name back to its API address / slug.
+// Read on first use, not at import: telegram.mjs imports this file while ats-common.mjs is still loading.
+const COMPANY_LIST_FILES = {
+  workday: "./workday/workday.json", // { name, url }
+  greenhouse: "./greenhouse/greenhouse.json", // { company, slug }
+  lever: "./lever/lever.json",
+  ashby: "./ashby/ashby.json",
+  smartrecruiters: "./smartrecruiters/smartrecruiters.json",
 };
+const companyLists = {};
 
 function findCompany(source, companyName) {
+  companyLists[source] ??= loadCompanies(COMPANY_LIST_FILES[source]);
   const nameField = source === "workday" ? "name" : "company";
-  const company = COMPANY_LISTS[source].find((listedCompany) => listedCompany[nameField] === companyName);
+  const company = companyLists[source].find((listedCompany) => listedCompany[nameField] === companyName);
   if (!company) throw new Error(`${companyName} is no longer in ${source}.json`);
   return company;
 }

@@ -199,7 +199,7 @@ async function scrapeMicrosoft() {
         department: job.department || "N/A",
         location: locationText,
         daysSincePosted: daysSincePosted,
-        url: `https://jobs.careers.microsoft.com${job.positionUrl}`
+        url: `https://apply.careers.microsoft.com${job.positionUrl}`
       });
     }
 

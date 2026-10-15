@@ -181,7 +181,7 @@ export async function runStandalone(metaUrl, runAll) {
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
-  await sendTelegramAlerts(result.source, newJobs);
+  await sendTelegramAlerts(newJobs);
   await saveRun(result.source, result.report, newJobs);
 
   if (result.report.length && result.report.every((r) => !r.ok))

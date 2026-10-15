@@ -125,7 +125,7 @@ async function runAllCustomScrapers() {
   const newJobs = await saveJobsAndGetNew(allRows);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
-  await sendTelegramAlerts(SOURCE, newJobs);
+  await sendTelegramAlerts(newJobs);
   await saveRun(SOURCE, report, newJobs);
 
   // Same rule as the ATS scrapers: only fail the workflow step when every company failed

@@ -264,7 +264,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const newJobs = await saveJobsAndGetNew(result.jobs);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
 
-  await sendTelegramAlerts(result.source, newJobs);
+  await sendTelegramAlerts(newJobs);
   await saveRun(result.source, result.report, newJobs);
 
   if (result.report.every((r) => !r.ok)) process.exitCode = 1; 

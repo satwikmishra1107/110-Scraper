@@ -1,5 +1,7 @@
 // telegram.mjs — sends one Telegram message per new or updated job.
 // Lives next to store.mjs. Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from the environment.
+// Jobs that get a resume-match score are pinged by score/score-jobs.mjs instead, and only if they score high enough.
+import { canFetchDescription } from "./score/descriptions.mjs";
 import { loadHiddenTitles } from "./store.mjs";
 
 const DELAY_BETWEEN_MESSAGES_MS = 1000; // Telegram allows about 1 message per second per chat
@@ -10,6 +12,7 @@ const SOURCE_LABELS = {
   lever: "Lever",
   ashby: "Ashby",
   smartrecruiters: "SmartRecruiters",
+  custom: "Custom",
 };
 
 // A ping is stricter than the board: the title must pass all three word checks below.
@@ -85,19 +88,22 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;");
 }
 
-// One job → one message, filled into a fixed template
-function formatJobMessage(job, source) {
-  const sourceLabel = SOURCE_LABELS[source] ?? source;
+// One job → one message, filled into a fixed template. job.match is the resume-match score, when there is one.
+function formatJobMessage(job) {
+  const sourceLabel = SOURCE_LABELS[job.source] ?? job.source;
   const openingLine = job.is_update
     ? `Hey Satwik 👋\nA ${sourceLabel} job you've seen before was just reposted (🔄 updated).`
     : `Hey Satwik 👋\nA new ${sourceLabel} job has been posted (🆕 new).`;
   const locationLine = job.location ? `\n<b>Location:</b> ${escapeHtml(job.location)}` : "";
+  const matchLine = job.match
+    ? `\n<b>Match:</b> ${job.match.score}/100${job.match.reason ? ` — ${escapeHtml(job.match.reason)}` : ""}`
+    : "";
 
   return (
     `${openingLine}\n\n` +
     `<b>Company:</b> ${escapeHtml(job.company)}\n` +
     `<b>Title:</b> ${escapeHtml(job.title)}` +
-    `${locationLine}\n` +
+    `${locationLine}${matchLine}\n` +
     `<b>Apply:</b> ${escapeHtml(job.url)}\n\n` +
     `Do check it out if it matches what you're looking for.`
   );
@@ -117,8 +123,9 @@ async function sendMessage(botToken, chatId, text) {
   if (!response.ok) throw new Error(`HTTP ${response.status} — ${await response.text()}`);
 }
 
-// Never throws: a failed alert is logged, and the scraper run carries on.
-export async function sendTelegramAlerts(source, jobs) {
+// Never throws: a failed alert is logged, and the run carries on.
+async function sendAlerts(jobs) {
+  if (jobs.length === 0) return;
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!botToken || !chatId) {
@@ -148,7 +155,7 @@ export async function sendTelegramAlerts(source, jobs) {
   let failedCount = 0;
   for (const [jobIndex, job] of jobsToAlert.entries()) {
     try {
-      await sendMessage(botToken, chatId, formatJobMessage(job, source));
+      await sendMessage(botToken, chatId, formatJobMessage(job));
     } catch (error) {
       failedCount += 1; // one bad message shouldn't stop the others
       console.error(`Telegram send failed (${job.company} – ${job.title}): ${error.message}`);
@@ -158,4 +165,17 @@ export async function sendTelegramAlerts(source, jobs) {
     }
   }
   console.log(`Telegram: sent ${jobsToAlert.length - failedCount} of ${jobsToAlert.length} job alerts.`);
+}
+
+/** Called by each scraper with its new/updated jobs. Pings only the ones that can't get a resume-match score. */
+export async function sendTelegramAlerts(jobs) {
+  const unscorableJobs = jobs.filter((job) => !canFetchDescription(job));
+  const waitingCount = jobs.length - unscorableJobs.length;
+  if (waitingCount > 0) console.log(`Telegram: ${waitingCount} job(s) wait for their resume-match score`);
+  await sendAlerts(unscorableJobs);
+}
+
+/** Called by score/score-jobs.mjs with the jobs that scored high enough; each carries .match = { score, reason }. */
+export async function sendScoredJobAlerts(jobs) {
+  await sendAlerts(jobs);
 }

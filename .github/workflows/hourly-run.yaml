@@ -18,6 +18,10 @@ jobs:
       TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
 
     steps:
+      # score/score-jobs.mjs pings a job reposted after this time if its earlier score is high enough
+      - name: Note the run's start time
+        run: echo "RUN_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       # 1. Checkout your code
       - name: Checkout repository
         uses: actions/checkout@v4

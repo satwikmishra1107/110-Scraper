@@ -6,11 +6,12 @@
 //      minus auto-hidden titles, "always hide" titles and archived jobs — same rules as the dashboard
 //   2. Fetch the description of every one that doesn't have one yet → jobs.description
 //   3. For each person with a resume and a key: score the jobs they have no score for yet, newest first → job_scores
+//   4. Telegram: ping the jobs that scored PING_MIN_SCORE or more (the scrapers leave scorable jobs to this step)
 import { pathToFileURL } from "node:url";
 import { delay } from "../ats-common.mjs";
 import { callGemini, parseGeminiJson } from "../gemini.mjs";
 import { loadHiddenTitles, supabase } from "../store.mjs";
-import { isAutoHiddenTitle, normalizeTitle } from "../telegram.mjs";
+import { isAutoHiddenTitle, normalizeTitle, sendScoredJobAlerts } from "../telegram.mjs";
 import { SOURCES_WITH_DESCRIPTIONS, canFetchDescription, fetchDescription } from "./descriptions.mjs";
 
 const GEMINI_MODEL = "gemini-3.5-flash-lite"; // same model as workday.mjs
@@ -23,6 +24,9 @@ const MAX_SCORES_PER_PERSON_PER_RUN = 40;
 const DELAY_BETWEEN_SCORES_MS = 4000; // the free tier allows ~15 requests a minute
 const MAX_DESCRIPTION_CHARS_IN_PROMPT = 12_000;
 const MAX_SKILLS = 10;
+const PING_MIN_SCORE = 80; // the prompt's "meets the experience bar and has most of the required skills"
+// A job scored late (an earlier run hit its limit or failed) is still pinged, unless it was found over a day ago
+const PING_NEW_JOBS_FOUND_WITHIN_MS = 24 * 60 * 60 * 1000;
 
 const makeJobKey = (company, jobId) => `${company}::${jobId}`;
 const getBoardTime = (job) => Date.parse(job.reposted_at ?? job.first_seen_at);
@@ -47,7 +51,10 @@ async function loadBoardJobs() {
       () =>
         supabase
           .from("jobs")
-          .select("source, company, job_id, title, location, url, first_seen_at, reposted_at, description, description_checked_at")
+          .select(
+            "source, company, job_id, title, location, url, posted_date, is_update, first_seen_at, reposted_at, " +
+              "description, description_checked_at",
+          )
           .in("source", SOURCES_WITH_DESCRIPTIONS)
           .or(`first_seen_at.gte."${since}",reposted_at.gte."${since}"`)
           .order("company")
@@ -278,12 +285,62 @@ async function scoreForEveryone(boardJobs) {
   );
 }
 
+// ---- 4. Telegram ----
+
+/**
+ * Pings each Board job whose best score (across people) is PING_MIN_SCORE or more, when either:
+ *   - it was scored in this run and found or reposted in the last day, or
+ *   - it was reposted during this workflow run (RUN_STARTED_AT, set by the workflow) and scored in an earlier one.
+ * Each job is scored once, so neither case pings the same posting twice.
+ */
+async function alertWellMatchedJobs(boardJobs, scoringStartedAt) {
+  const scoreRows = await fetchAllRows(
+    () =>
+      supabase
+        .from("job_scores")
+        .select("company, job_id, person, score, reason, scored_at")
+        .order("company")
+        .order("job_id")
+        .order("person"),
+    "job_scores",
+  );
+  const bestScoreByJob = new Map();
+  const jobsScoredThisRun = new Set();
+  for (const scoreRow of scoreRows) {
+    const jobKey = makeJobKey(scoreRow.company, scoreRow.job_id);
+    if (Date.parse(scoreRow.scored_at) >= scoringStartedAt) jobsScoredThisRun.add(jobKey);
+    if (!bestScoreByJob.has(jobKey) || scoreRow.score > bestScoreByJob.get(jobKey).score) {
+      bestScoreByJob.set(jobKey, scoreRow);
+    }
+  }
+
+  // Not set when run by hand: then only newly scored jobs are pinged
+  const workflowStartTime = Date.parse(process.env.RUN_STARTED_AT ?? "");
+  const jobsToPing = [];
+  for (const job of boardJobs) {
+    const jobKey = makeJobKey(job.company, job.job_id);
+    const bestScore = bestScoreByJob.get(jobKey);
+    if (!bestScore || bestScore.score < PING_MIN_SCORE) continue;
+
+    const isNewlyScored =
+      jobsScoredThisRun.has(jobKey) && Date.now() - getBoardTime(job) <= PING_NEW_JOBS_FOUND_WITHIN_MS;
+    const wasRepostedThisRun = Date.parse(job.reposted_at) >= workflowStartTime;
+    if (isNewlyScored || wasRepostedThisRun) {
+      jobsToPing.push({ ...job, match: { score: bestScore.score, reason: bestScore.reason } });
+    }
+  }
+  console.log(`Telegram: ${jobsToPing.length} newly scored or reposted job(s) scored ${PING_MIN_SCORE}+`);
+  await sendScoredJobAlerts(jobsToPing);
+}
+
 // Runs only when started directly (node score/score-jobs.mjs), not when imported
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
+    const scoringStartedAt = Date.now();
     const boardJobs = await loadBoardJobs();
     await fillMissingDescriptions(boardJobs);
     await scoreForEveryone(boardJobs);
+    await alertWellMatchedJobs(boardJobs, scoringStartedAt);
   } catch (error) {
     console.error(`Scoring failed: ${error.message}`);
     process.exitCode = 1;
