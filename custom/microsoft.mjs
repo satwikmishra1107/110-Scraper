@@ -5,7 +5,11 @@ const MAX_POSTING_AGE_DAYS = 1;
 const MAX_PAGES_TO_FETCH = 40;
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_ATTEMPTS_PER_PAGE = 3;
-// Every page is fetched (the "recent" sort isn't reliable), so go slower instead of fetching less
+// Microsoft rate-limits after only a few requests, from any IP, so the search is narrowed on their side:
+// software engineering, entry and mid-level only (~20 jobs = 2 pages, instead of ~265 = 27 pages).
+// The API ignores sort_by (it always sorts by "distance"), so every page is still fetched.
+const SEARCH_FILTERS =
+  "&filter_profession=software+engineering&filter_seniority=Entry&filter_seniority=Mid-Level";
 const DELAY_BETWEEN_PAGES_MS = 5000;
 // Microsoft's 429 has no Retry-After, so wait this long per attempt (30s, then 60s) before retrying
 const RATE_LIMIT_COOLDOWN_MS = 30000;
@@ -111,7 +115,7 @@ async function scrapeMicrosoft() {
   for (let page = 0; page < MAX_PAGES_TO_FETCH; page++) {
     log(`   Fetching page ${page + 1} (offset ${startOffset})...`);
 
-    const apiUrl = `https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&location=India&start=${startOffset}&sort_by=recent`;
+    const apiUrl = `https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&location=India&start=${startOffset}${SEARCH_FILTERS}`;
 
     let bodyText;
     let success = false;
@@ -204,6 +208,8 @@ async function scrapeMicrosoft() {
     }
 
     startOffset += positions.length;
+    // Stop at the API's own count: asking for the empty page after the last would be one more request to be limited on
+    if (startOffset >= (data.data.count ?? Infinity)) break;
     if (page < MAX_PAGES_TO_FETCH - 1) await delay(jitter(DELAY_BETWEEN_PAGES_MS));
   }
 
