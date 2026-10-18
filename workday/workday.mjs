@@ -71,7 +71,15 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
       throw error; 
     }
 
-    return response.json();
+    // During Workday's weekly maintenance (Saturdays, about 05:00–10:00 UTC, one data center after another)
+    // the API answers 200 with a web page. Not retried: it lasts hours, and the next run catches up.
+    const body = await response.text();
+    try {
+      return JSON.parse(body);
+    } catch {
+      const pageTitle = body.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim();
+      throw new Error(`Workday sent a web page instead of data (likely weekly maintenance)${pageTitle ? `: "${pageTitle}"` : ""}`);
+    }
   }
   throw new Error(`Workday failed after 5 attempts: ${lastError?.message}`);
 }

@@ -104,6 +104,7 @@ async function scrapeQualcomm() {
   let startOffset = 0;
   let totalJobsInAPI = null;
   let totalJobsChecked = 0;
+  let stoppedEarlyWarning = null;
 
   // Headers a real browser sends for a same-origin XHR call. The original
   // script's User-Agent was truncated (no "Chrome/xxx Safari/537.36" suffix)
@@ -128,6 +129,7 @@ async function scrapeQualcomm() {
 
     let bodyText;
     let success = false;
+    let lastFailure = null;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_PAGE; attempt++) {
       try {
@@ -159,12 +161,23 @@ async function scrapeQualcomm() {
         break;
       } catch (err) {
         log(`     ⚠️ Attempt ${attempt} failed: ${err.message}`);
-        if (attempt === MAX_ATTEMPTS_PER_PAGE) throw err;
+        if (attempt === MAX_ATTEMPTS_PER_PAGE) {
+          lastFailure = err;
+          break;
+        }
         await delay(jitter(attempt * 2000)); // back off on non-429 failures too, not just 429s
       }
     }
 
-    if (!success) throw new Error("Hit maximum rate limit retries. Giving up.");
+    if (!success) {
+      const failure = lastFailure ?? new Error("Hit maximum rate limit retries. Giving up.");
+      if (page === 0) throw failure; // nothing read at all: a real failure
+      // A later page: keep the jobs already read instead of throwing them all away.
+      // Jobs stay listed for weeks, so the pages missed now are read on a later run.
+      stoppedEarlyWarning = `Stopped at page ${page + 1} (${failure.message}); kept the ${totalJobsChecked} jobs read before it`;
+      log(`   ⚠️ ${stoppedEarlyWarning}`);
+      break;
+    }
 
     let data;
     try {
@@ -229,7 +242,7 @@ async function scrapeQualcomm() {
   log(`   Skipped: ${skipCounts.notSoftware} not software, ${skipCounts.notIndia} not India`);
   log(`   Kept: ${matchingJobs.length}`);
 
-  return matchingJobs;
+  return { jobs: matchingJobs, warning: stoppedEarlyWarning };
 }
 
 export async function main() {
@@ -242,7 +255,8 @@ export async function main() {
   let errorMessage = null;
 
   try {
-    allJobs = await scrapeQualcomm();
+    // A warning (stopped early) still counts as a working run; the runner shows it next to the count
+    ({ jobs: allJobs, warning: errorMessage } = await scrapeQualcomm());
     log(`✅ Qualcomm done`);
   } catch (error) {
     scrapeFailed = true;
