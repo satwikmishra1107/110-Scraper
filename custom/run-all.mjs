@@ -92,12 +92,16 @@ async function runOneScraper(scraperConfig, scrapedAt) {
       error: [errorMessage, ...warnings].filter(Boolean).join(" | ") || null,
     }));
 
-    // A scraper that already has the description (only Uber so far) hands it over, so scoring needn't fetch it
+    // A scraper that already has the description (Uber, Meta, Airtel, Delhivery) hands it over, so scoring needn't fetch it
     const descriptions = jobsWithId
       .filter((job) => job.description)
       .map((job) => ({ company: job.company, job_id: job.id, description: job.description }));
+    // And says which jobs have no description posted at all: those can't be scored, so they're pinged right away
+    const noDescriptionJobKeys = jobsWithId
+      .filter((job) => job.noDescriptionPosted)
+      .map((job) => `${job.company}|${job.id}`);
 
-    return { rows: jobsWithId.map((job) => toRow(job, scrapedAt)), reportEntries, descriptions };
+    return { rows: jobsWithId.map((job) => toRow(job, scrapedAt)), reportEntries, descriptions, noDescriptionJobKeys };
   } catch (loadError) {
     // The file itself is broken (syntax error, missing package), so main() never ran
     const reportEntries = scraperConfig.companies.map((company) => ({
@@ -107,7 +111,7 @@ async function runOneScraper(scraperConfig, scrapedAt) {
       count: 0,
       error: `Could not load or run file: ${loadError.message}`,
     }));
-    return { rows: [], reportEntries, descriptions: [] };
+    return { rows: [], reportEntries, descriptions: [], noDescriptionJobKeys: [] };
   }
 }
 
@@ -116,14 +120,16 @@ async function runAllCustomScrapers() {
   const allRows = [];
   const report = [];
   const allDescriptions = [];
+  const noDescriptionJobKeys = new Set();
 
   // One file at a time: several of these launch Chromium, and running them together can run out of memory
   for (const scraperConfig of CUSTOM_SCRAPERS) {
     console.log(`\n########## ${scraperConfig.file} ##########`);
-    const { rows, reportEntries, descriptions } = await runOneScraper(scraperConfig, scrapedAt);
-    allRows.push(...rows);
-    report.push(...reportEntries);
-    allDescriptions.push(...descriptions);
+    const scraperResult = await runOneScraper(scraperConfig, scrapedAt);
+    allRows.push(...scraperResult.rows);
+    report.push(...scraperResult.reportEntries);
+    allDescriptions.push(...scraperResult.descriptions);
+    scraperResult.noDescriptionJobKeys.forEach((jobKey) => noDescriptionJobKeys.add(jobKey));
   }
 
   console.log(`\n=== FINAL ${SOURCE.toUpperCase()} REPORT ===`);
@@ -136,7 +142,7 @@ async function runAllCustomScrapers() {
   // After the save, so new jobs have a row to fill. Every run, so a failed save is filled next hour
   await saveScrapedDescriptions(allDescriptions);
 
-  await sendTelegramAlerts(newJobs);
+  await sendTelegramAlerts(newJobs, noDescriptionJobKeys);
   await saveRun(SOURCE, report, newJobs);
 
   // Same rule as the ATS scrapers: only fail the workflow step when every company failed

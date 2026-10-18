@@ -2,6 +2,7 @@
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { addDarwinboxDescriptions, darwinboxJobUrl } from "./darwinbox-descriptions.mjs";
 
 puppeteer.use(StealthPlugin());
 
@@ -175,7 +176,7 @@ async function scrapeDelhivery() {
           continue;
         }
       
-        const jobUrl = `https://delhivery.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
+        const jobUrl = darwinboxJobUrl("delhivery.darwinbox.in", job.id);
 
         matchingJobs.push({
           id: String(job.id),
@@ -201,6 +202,9 @@ async function scrapeDelhivery() {
 
       await delay(500); // Polite delay between pages
     }
+
+    // Same page: it has already cleared Cloudflare
+    await addDarwinboxDescriptions(page, matchingJobs, "Delhivery");
   } finally {
     log(`   Closing browser...`);
     await browser.close();

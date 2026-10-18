@@ -1,7 +1,6 @@
 // score/descriptions.mjs — a job's full description, read from its platform's public API.
-// The five ATS platforms, plus the custom sites (custom/*.mjs) that have an API. Uber and Meta are read by their
-// scrapers instead (see their entries below). Not yet: the other sites scraped in a browser (Google, Airtel,
-// Delhivery, Flipkart). Their jobs have no description, and so no score.
+// The five ATS platforms, plus every custom site (custom/*.mjs). Most are fetched here; the ones behind Cloudflare
+// or a browser-only page (Uber, Meta, Airtel, Delhivery) are read by their scrapers instead (see savedByScraper).
 import { fetchJson, loadCompanies } from "../ats-common.mjs";
 
 const MAX_DESCRIPTION_CHARS = 20_000; // a few very long postings repeat the same boilerplate; this is plenty
@@ -31,7 +30,7 @@ const NAMED_ENTITIES = {
 };
 
 // "&lt;p&gt;Java &amp; Go&#43;" → "<p>Java & Go+"
-function decodeHtmlEntities(text) {
+export function decodeHtmlEntities(text) {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, code) => {
     if (code[0] !== "#") return NAMED_ENTITIES[code.toLowerCase()] ?? entity;
     const codePoint = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : Number(code.slice(1));
@@ -152,6 +151,23 @@ const BROWSER_HEADERS = {
 };
 const fetchFromSite = (url, headers = {}) => fetchJson(url, { headers: { ...BROWSER_HEADERS, ...headers } });
 
+// For sites whose job page is plain HTML rather than an API (Google)
+async function fetchPageHtml(url) {
+  const response = await fetch(url, { headers: BROWSER_HEADERS, signal: AbortSignal.timeout(30_000) });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.text();
+}
+
+// TurboHire (Flipkart) hands out a token to anyone, but only to requests that come from its own site.
+// One token per run: it lasts much longer than a run does
+const TURBOHIRE_HEADERS = { Origin: "https://flipkart.turbohire.co", Referer: "https://flipkart.turbohire.co/" };
+let turboHireToken;
+const getTurboHireToken = () => {
+  turboHireToken ??= fetchFromSite("https://thapi.azurewebsites.net/api/token/noauth", TURBOHIRE_HEADERS)
+    .then((data) => data.access_token);
+  return turboHireToken;
+};
+
 // Eightfold career sites: HSBC, NetApp, Netflix
 const eightfold = (host, domain) => async (job) => {
   const data = await fetchFromSite(`https://${host}/api/apply/v2/jobs/${job.job_id}?domain=${domain}`);
@@ -180,6 +196,11 @@ const oracleRecruiting = (host, siteNumber) => async (job) => {
     ["Responsibilities", requisition.ExternalResponsibilitiesStr],
     ["Qualifications", requisition.ExternalQualificationsStr],
   ]);
+};
+
+// For custom sites whose scraper reads the description itself (see the end of the list below)
+const savedByScraper = (file) => async () => {
+  throw new Error(`saved by custom/${file} when it runs (or the job has no description posted), not fetched here`);
 };
 
 // Custom jobs all have source "custom", so the fetcher is picked by company (the names in custom/run-all.mjs)
@@ -244,6 +265,29 @@ const CUSTOM_DESCRIPTION_FETCHERS = {
   },
 
   EXL: oracleRecruiting("fa-ewjt-saasfaprod1.fa.ocs.oraclecloud.com", "CX_2"),
+
+  // job_id is TurboHire's JobId; the API wants the obfuscated id at the end of the job's url
+  // ("…/job/publicjobs/<id>", or "…/job/<id>" on older rows). It comes already URL-encoded, so it's used as is
+  async Flipkart(job) {
+    const obfuscatedId = job.url.split("/").pop();
+    const data = await fetchFromSite(
+      `https://thapi.azurewebsites.net/api/referraljobs?tkn=${obfuscatedId}&fieldVisibility=CareerPage`,
+      { ...TURBOHIRE_HEADERS, Authorization: `Bearer ${await getTurboHireToken()}` },
+    );
+    return htmlToText(data.JobDescriptionV2 || data.JobDescription);
+  },
+
+  // The job page is server-rendered: one block of Minimum qualifications, Preferred qualifications, About the job
+  // and Responsibilities, in that order. Its class names are generated, so the headings mark where it starts and ends
+  async Google(job) {
+    const html = await fetchPageHtml(`https://www.google.com/about/careers/applications/jobs/results/${job.job_id}`);
+    const start = html.indexOf("<h3>Minimum qualifications");
+    if (start === -1) throw new Error("no job details on the page (closed, or the layout changed)");
+    const responsibilitiesAt = html.indexOf("<h3>Responsibilities", start);
+    // Without a Responsibilities section, stop at the next page-level heading (the Equal Opportunity footer)
+    const end = responsibilitiesAt === -1 ? html.indexOf("<h2", start) : html.indexOf("</div>", responsibilitiesAt);
+    return htmlToText(html.slice(start, end === -1 ? undefined : end));
+  },
   HSBC: eightfold("portal.careers.hsbc.com", "hsbc.com"),
   JPMorgan: oracleRecruiting("jpmc.fa.oraclecloud.com", "CX_1001"),
 
@@ -310,16 +354,15 @@ const CUSTOM_DESCRIPTION_FETCHERS = {
     return htmlToText(data.description?.role);
   },
 
-  // Nothing to fetch for these two: the scraper reads the description itself and run-all.mjs saves it. Listed so
-  // their jobs count as scorable; only reached if that save hasn't happened yet.
+  // Nothing to fetch for these: the scraper reads the description itself and run-all.mjs saves it. Listed so
+  // their jobs count as scorable; only reached if that save hasn't happened yet (or the job has no description posted).
   // Uber: Cloudflare blocks Node's fetch on jobs.uber.com, and the search API already includes the description.
   // Meta: the job page answers plain fetch with HTTP 400, so custom/meta.mjs opens it in its browser.
-  async Uber() {
-    throw new Error("saved by custom/uber.mjs on its next run, not fetched here");
-  },
-  async Meta() {
-    throw new Error("saved by custom/meta.mjs on its next run, not fetched here");
-  },
+  // Airtel, Delhivery: Darwinbox sits behind Cloudflare; see custom/darwinbox-descriptions.mjs.
+  Uber: savedByScraper("uber.mjs"),
+  Meta: savedByScraper("meta.mjs"),
+  "Airtel (Bharti)": savedByScraper("airtel.mjs"),
+  Delhivery: savedByScraper("delhivery.mjs"),
 };
 
 const getDescriptionFetcher = (job) =>

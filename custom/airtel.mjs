@@ -2,6 +2,7 @@
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { addDarwinboxDescriptions, darwinboxJobUrl } from "./darwinbox-descriptions.mjs";
 
 puppeteer.use(StealthPlugin());
 
@@ -159,7 +160,7 @@ async function scrapeAirtel() {
           continue;
         }
         
-        const jobUrl = `https://airtel.darwinbox.in/ms/candidate/job/job_detail/id/${job.id}`;
+        const jobUrl = darwinboxJobUrl("airtel.darwinbox.in", job.id);
 
         matchingJobs.push({
           id: String(job.id),
@@ -176,8 +177,11 @@ async function scrapeAirtel() {
       if (totalJobsInAPI !== null && totalJobsChecked >= totalJobsInAPI) break;
       if (jobs.length < JOBS_PER_PAGE) break;
 
-      await delay(1000); 
+      await delay(1000);
     }
+
+    // Same page: it has already cleared Cloudflare
+    await addDarwinboxDescriptions(page, matchingJobs, "Airtel (Bharti)");
   } finally {
     log(`   Closing browser...`);
     await browser.close();

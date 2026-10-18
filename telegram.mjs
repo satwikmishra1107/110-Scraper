@@ -167,9 +167,14 @@ async function sendAlerts(jobs) {
   console.log(`Telegram: sent ${jobsToAlert.length - failedCount} of ${jobsToAlert.length} job alerts.`);
 }
 
-/** Called by each scraper with its new/updated jobs. Pings only the ones that can't get a resume-match score. */
-export async function sendTelegramAlerts(jobs) {
-  const unscorableJobs = jobs.filter((job) => !canFetchDescription(job));
+/**
+ * Called by each scraper with its new/updated jobs. Pings only the ones that can't get a resume-match score.
+ * `noDescriptionJobKeys` ("company|job_id"): jobs on a scorable site that have no description posted (custom/run-all.mjs)
+ */
+export async function sendTelegramAlerts(jobs, noDescriptionJobKeys = new Set()) {
+  const unscorableJobs = jobs.filter(
+    (job) => !canFetchDescription(job) || noDescriptionJobKeys.has(`${job.company}|${job.job_id}`),
+  );
   const waitingCount = jobs.length - unscorableJobs.length;
   if (waitingCount > 0) console.log(`Telegram: ${waitingCount} job(s) wait for their resume-match score`);
   await sendAlerts(unscorableJobs);
