@@ -2,7 +2,7 @@
 // Runs every custom scraper one after another, then saves exactly like ats-common's runStandalone():
 // jobs → saveJobsAndGetNew(), new/updated → Telegram, one "custom" row → runs table.
 import "dotenv/config";
-import { saveJobsAndGetNew, saveRun } from "../store.mjs";
+import { saveJobsAndGetNew, saveRun, saveScrapedDescriptions } from "../store.mjs";
 import { sendTelegramAlerts } from "../telegram.mjs";
 
 const SOURCE = "custom";
@@ -32,6 +32,7 @@ const CUSTOM_SCRAPERS = [
   { file: "postman.mjs", companies: ["Postman"] },
   { file: "qualcomm.mjs", companies: ["Qualcomm"] },
   { file: "rippling.mjs", companies: ["Rippling"] },
+  { file: "uber.mjs", companies: ["Uber"] },
 ];
 
 // Custom scrapers give "days since posted", not a raw date, so the date is worked out from the run time.
@@ -91,7 +92,12 @@ async function runOneScraper(scraperConfig, scrapedAt) {
       error: [errorMessage, ...warnings].filter(Boolean).join(" | ") || null,
     }));
 
-    return { rows: jobsWithId.map((job) => toRow(job, scrapedAt)), reportEntries };
+    // A scraper that already has the description (only Uber so far) hands it over, so scoring needn't fetch it
+    const descriptions = jobsWithId
+      .filter((job) => job.description)
+      .map((job) => ({ company: job.company, job_id: job.id, description: job.description }));
+
+    return { rows: jobsWithId.map((job) => toRow(job, scrapedAt)), reportEntries, descriptions };
   } catch (loadError) {
     // The file itself is broken (syntax error, missing package), so main() never ran
     const reportEntries = scraperConfig.companies.map((company) => ({
@@ -101,7 +107,7 @@ async function runOneScraper(scraperConfig, scrapedAt) {
       count: 0,
       error: `Could not load or run file: ${loadError.message}`,
     }));
-    return { rows: [], reportEntries };
+    return { rows: [], reportEntries, descriptions: [] };
   }
 }
 
@@ -109,13 +115,15 @@ async function runAllCustomScrapers() {
   const scrapedAt = new Date().toISOString();
   const allRows = [];
   const report = [];
+  const allDescriptions = [];
 
   // One file at a time: several of these launch Chromium, and running them together can run out of memory
   for (const scraperConfig of CUSTOM_SCRAPERS) {
     console.log(`\n########## ${scraperConfig.file} ##########`);
-    const { rows, reportEntries } = await runOneScraper(scraperConfig, scrapedAt);
+    const { rows, reportEntries, descriptions } = await runOneScraper(scraperConfig, scrapedAt);
     allRows.push(...rows);
     report.push(...reportEntries);
+    allDescriptions.push(...descriptions);
   }
 
   console.log(`\n=== FINAL ${SOURCE.toUpperCase()} REPORT ===`);
@@ -124,6 +132,9 @@ async function runAllCustomScrapers() {
 
   const newJobs = await saveJobsAndGetNew(allRows);
   console.log(`\n=== NEW JOBS (not seen before): ${newJobs.length} ===`);
+
+  // After the save, so new jobs have a row to fill. Every run, so a failed save is filled next hour
+  await saveScrapedDescriptions(allDescriptions);
 
   await sendTelegramAlerts(newJobs);
   await saveRun(SOURCE, report, newJobs);

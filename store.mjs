@@ -130,6 +130,21 @@ export async function saveJobsAndGetNew(jobs) {
   return [...newJobs, ...updatedJobs];
 }
 
+// For scrapers that read the description along with the job (Uber: the search API includes it, and Cloudflare blocks
+// the one-job fetch score/descriptions.mjs would make). Its own update, not part of saveJobsAndGetNew's upsert: rows
+// without a description there would set it to NULL on reposted jobs. Only fills an empty one, so nothing is overwritten.
+export async function saveScrapedDescriptions(jobsWithDescription) {
+  for (const { company, job_id, description } of jobsWithDescription) {
+    const { error } = await supabase
+      .from("jobs")
+      .update({ description, description_checked_at: new Date().toISOString() })
+      .eq("company", company)
+      .eq("job_id", job_id)
+      .is("description", null);
+    if (error) console.error(`Supabase description save failed (${company} ${job_id}): ${error.message}`);
+  }
+}
+
 export async function loadHiddenTitles() {
   const { data, error } = await supabase.from("hidden_titles").select("title");
   if (error) throw new Error(`Supabase hidden titles load failed: ${error.message}`);

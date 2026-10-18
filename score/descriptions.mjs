@@ -308,6 +308,12 @@ const CUSTOM_DESCRIPTION_FETCHERS = {
     const data = await fetchFromSite(`https://ats.rippling.com/api/v2/board/rippling/jobs/${job.job_id}`);
     return htmlToText(data.description?.role);
   },
+
+  // Nothing to fetch: custom/uber.mjs reads the description with the job and run-all.mjs saves it. Cloudflare blocks
+  // Node's fetch on jobs.uber.com. Listed so Uber jobs count as scorable; only reached if that save hasn't happened yet.
+  async Uber() {
+    throw new Error("saved by custom/uber.mjs on its next run, not fetched here");
+  },
 };
 
 const getDescriptionFetcher = (job) =>
