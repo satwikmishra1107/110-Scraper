@@ -1,6 +1,7 @@
 // score/descriptions.mjs — a job's full description, read from its platform's public API.
-// The five ATS platforms, plus the custom sites (custom/*.mjs) that have an API. Not yet: the sites scraped
-// in a browser (Google, Meta, Airtel, Delhivery, Flipkart). Their jobs have no description, and so no score.
+// The five ATS platforms, plus the custom sites (custom/*.mjs) that have an API. Uber and Meta are read by their
+// scrapers instead (see their entries below). Not yet: the other sites scraped in a browser (Google, Airtel,
+// Delhivery, Flipkart). Their jobs have no description, and so no score.
 import { fetchJson, loadCompanies } from "../ats-common.mjs";
 
 const MAX_DESCRIPTION_CHARS = 20_000; // a few very long postings repeat the same boilerplate; this is plenty
@@ -309,10 +310,15 @@ const CUSTOM_DESCRIPTION_FETCHERS = {
     return htmlToText(data.description?.role);
   },
 
-  // Nothing to fetch: custom/uber.mjs reads the description with the job and run-all.mjs saves it. Cloudflare blocks
-  // Node's fetch on jobs.uber.com. Listed so Uber jobs count as scorable; only reached if that save hasn't happened yet.
+  // Nothing to fetch for these two: the scraper reads the description itself and run-all.mjs saves it. Listed so
+  // their jobs count as scorable; only reached if that save hasn't happened yet.
+  // Uber: Cloudflare blocks Node's fetch on jobs.uber.com, and the search API already includes the description.
+  // Meta: the job page answers plain fetch with HTTP 400, so custom/meta.mjs opens it in its browser.
   async Uber() {
     throw new Error("saved by custom/uber.mjs on its next run, not fetched here");
+  },
+  async Meta() {
+    throw new Error("saved by custom/meta.mjs on its next run, not fetched here");
   },
 };
 

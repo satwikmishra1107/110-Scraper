@@ -179,8 +179,9 @@ async function scrapeFlipkart() {
       continue;
     }
     
-    // Use the TurboHire domain for the job link
-    const jobUrl = `https://flipkart.turbohire.co/job/${job.JobIdObfuscated || job.JobId}`;
+    // The board opens jobs at /job/publicjobs/<obfuscated id>; plain /job/<id> is a blank page.
+    // The obfuscated id comes already URL-encoded ("…pH%2Fj"), so it's used as is
+    const jobUrl = `https://flipkart.turbohire.co/job/publicjobs/${job.JobIdObfuscated || job.JobId}`;
 
     matchingJobs.push({
       id: String(job.JobId),

@@ -2,11 +2,17 @@
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { htmlToText } from "../score/descriptions.mjs";
+import { loadJobIdsWithDescription } from "../store.mjs";
 
 puppeteer.use(StealthPlugin());
 
 // ---------- Settings ----------
 const MAX_PAGES_TO_FETCH = 30;
+// Descriptions need one page visit per job (~2s each), so only jobs without one yet are opened, at most this many a run.
+// The rest are picked up next run.
+const MAX_DESCRIPTIONS_PER_RUN = 40;
+const MAX_DESCRIPTION_CHARS = 20_000; // same cap as score/descriptions.mjs
 const META_BASE_URL = "https://www.metacareers.com/jobsearch/?offices[0]=Mumbai%2C%20India&offices[1]=Gurgaon%2C%20India&offices[2]=Bangalore%2C%20India&offices[3]=Hyderabad%2C%20India&offices[4]=New%20Delhi%2C%20India&sort_by_new=true";
 
 const SD_KEYWORDS = [
@@ -47,6 +53,56 @@ function log(message) {
 
 function isSoftwareJob(title) {
   return SD_REGEX.test(title || "");
+}
+
+// The job page carries a schema.org JobPosting block with the full text. Plain fetch gets HTTP 400, so it's read
+// in the browser. "Heading\nbody" per section, like joinSections() in score/descriptions.mjs
+async function readJobDescription(page, jobUrl) {
+  await page.goto(jobUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+  const jobPostingText = await page.evaluate(
+    () => document.querySelector('script[type="application/ld+json"]')?.textContent,
+  );
+  if (!jobPostingText) throw new Error("no JobPosting data on the job page");
+
+  const jobPosting = JSON.parse(jobPostingText);
+  return [
+    ["", jobPosting.description],
+    ["Responsibilities", jobPosting.responsibilities],
+    ["Qualifications", jobPosting.qualifications],
+  ]
+    .map(([heading, html]) => [heading, htmlToText(html)])
+    .filter(([, body]) => body)
+    .map(([heading, body]) => (heading ? `${heading}\n${body}` : body))
+    .join("\n\n")
+    .slice(0, MAX_DESCRIPTION_CHARS);
+}
+
+// Opens the pages of jobs that have no saved description yet and sets job.description on them
+async function addDescriptions(page, jobs) {
+  let describedJobIds = new Set();
+  try {
+    describedJobIds = await loadJobIdsWithDescription("Meta");
+  } catch (error) {
+    // Without the list every job looks new; the per-run cap keeps that bounded
+    log(`   ⚠️ ${error.message}`);
+  }
+
+  const jobsToDescribe = jobs.filter(job => !describedJobIds.has(job.id)).slice(0, MAX_DESCRIPTIONS_PER_RUN);
+  const leftForNextRun = jobs.filter(job => !describedJobIds.has(job.id)).length - jobsToDescribe.length;
+  log(`   Reading descriptions for ${jobsToDescribe.length} jobs (${jobs.length - jobsToDescribe.length - leftForNextRun} already saved${leftForNextRun ? `, ${leftForNextRun} left for next run` : ""})...`);
+
+  let failedCount = 0;
+  for (const job of jobsToDescribe) {
+    try {
+      job.description = await readJobDescription(page, job.url) || null;
+    } catch (error) {
+      // Not fatal: the job is still saved, and its description is tried again next run
+      failedCount++;
+      log(`   ⚠️ No description for "${job.title}": ${error.message}`);
+    }
+    await delay(500);
+  }
+  log(`   Descriptions: read ${jobsToDescribe.length - failedCount}, failed ${failedCount}`);
 }
 
 // ---------- Scraper Logic ----------
@@ -145,8 +201,11 @@ async function scrapeMeta() {
 
       if (totalJobsOnSite !== null && totalJobsChecked >= totalJobsOnSite) break;
 
-      await delay(1500); 
+      await delay(1500);
     }
+
+    // Same browser: the job pages need it as much as the results pages do
+    await addDescriptions(page, matchingJobs);
   } finally {
     log(`   Closing browser...`);
     await browser.close();

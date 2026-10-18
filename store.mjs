@@ -145,6 +145,18 @@ export async function saveScrapedDescriptions(jobsWithDescription) {
   }
 }
 
+// For scrapers that open each job's page to read its description (Meta): the jobs that already have one, so only
+// new jobs cost a page visit
+export async function loadJobIdsWithDescription(company) {
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("job_id")
+    .eq("company", company)
+    .not("description", "is", null);
+  if (error) throw new Error(`Supabase description lookup failed: ${error.message}`);
+  return new Set(data.map((row) => row.job_id));
+}
+
 export async function loadHiddenTitles() {
   const { data, error } = await supabase.from("hidden_titles").select("title");
   if (error) throw new Error(`Supabase hidden titles load failed: ${error.message}`);
