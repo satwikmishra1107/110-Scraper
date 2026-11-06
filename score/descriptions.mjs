@@ -359,6 +359,9 @@ const CUSTOM_DESCRIPTION_FETCHERS = {
   // Uber: Cloudflare blocks Node's fetch on jobs.uber.com, and the search API already includes the description.
   // Meta: the job page answers plain fetch with HTTP 400, so custom/meta.mjs opens it in its browser.
   // Airtel, Delhivery: Darwinbox sits behind Cloudflare; see custom/darwinbox-descriptions.mjs.
+  // Nike: Akamai blocks plain fetch, and the job list already includes the description. (Nike jobs that
+  // workday.mjs saved first have source "workday" and use the Workday fetcher above.)
+  Nike: savedByScraper("nike.mjs"),
   Uber: savedByScraper("uber.mjs"),
   Meta: savedByScraper("meta.mjs"),
   "Airtel (Bharti)": savedByScraper("airtel.mjs"),
