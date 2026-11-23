@@ -2,10 +2,7 @@
   { "company": "Paytm", "slug": "paytm" },
   { "company": "CRED", "slug": "cred" },
   { "company": "Meesho", "slug": "meesho" },
-  { "company": "Spotify", "slug": "spotify" },
-  { "company": "Palantir Technologies", "slug": "palantir" },
   { "company": "Hevo Data", "slug": "hevodata" },
   { "company": "Mindtickle", "slug": "mindtickle" },
-  { "company": "Zeta", "slug": "zeta" },
-  { "company": "FamPay", "slug": "fampay" }
+  { "company": "Zeta", "slug": "zeta" }
 ]

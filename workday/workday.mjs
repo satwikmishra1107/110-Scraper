@@ -14,6 +14,8 @@ const RESULTS_PER_PAGE = 20;
 const MAX_PAGES = 50; 
 const STALE_PAGES_BEFORE_STOP = 2; 
 const REQUEST_TIMEOUT_MS = 30_000;
+const SECOND_PASS_PAUSE_MS = 90_000;
+const SECOND_PASS_MAX_FAILURES_IN_A_ROW = 2;
 
 const COMPANIES = JSON.parse(fs.readFileSync("./workday/workday.json", "utf8"));
 
@@ -287,6 +289,32 @@ export async function runAll() {
     }
 
     await delay(1000);
+  }
+
+  // Cloudflare's 429s come and go within a run, so give the companies that got one a second try after a pause.
+  // Stops once 2 in a row fail again: this runner's IP is still blocked, and each failure costs ~45s of retries.
+  const rateLimited = statusReport.filter((entry) => !entry.ok && entry.error.includes("HTTP 429"));
+  if (rateLimited.length) {
+    console.log(`\nRetrying ${rateLimited.length} rate-limited companies after a ${SECOND_PASS_PAUSE_MS / 1000}s pause...\n`);
+    await delay(SECOND_PASS_PAUSE_MS);
+    let failuresInARow = 0;
+    for (const entry of rateLimited) {
+      if (failuresInARow >= SECOND_PASS_MAX_FAILURES_IN_A_ROW) break;
+      const company = COMPANIES.find((c) => c.name === entry.company);
+      console.log(`Retrying: ${company.name}`);
+      try {
+        const jobs = await scrapeCompany(company, scrapedAt);
+        allRecentJobs.push(...jobs);
+        Object.assign(entry, { ok: true, count: jobs.length, error: null, retried: true });
+        failuresInARow = 0;
+        console.log(`  └─ Success on retry: Found ${jobs.length} recent jobs.\n`);
+      } catch (error) {
+        entry.error = error.message;
+        failuresInARow++;
+        console.log(`  └─ Failed again: ${error.message}\n`);
+      }
+      await delay(1000);
+    }
   }
 
   return { source: "workday", scraped_at: scrapedAt, jobs: allRecentJobs, report: statusReport };
