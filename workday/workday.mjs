@@ -37,7 +37,25 @@ const delay = (milliseconds) =>
 const facetCache = await loadFacetCache();
 
 
+// Since 2026-11-16 Cloudflare (in front of Workday) answers many GitHub Actions requests with 429,
+// while the same requests from a home connection pass. So requests look like the careers page's own
+// (browser User-Agent, Origin/Referer, Cloudflare's cookies kept per host), and a 429 logs what Cloudflare said.
+const BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36";
+const cookiesByHost = new Map();
+
+function rememberCookies(host, response) {
+  const cookies = new Map((cookiesByHost.get(host) ?? "").split("; ").filter(Boolean).map((c) => c.split(/=(.*)/s, 2)));
+  for (const setCookie of response.headers.getSetCookie()) {
+    const [name, value] = setCookie.split(";")[0].split(/=(.*)/s, 2);
+    cookies.set(name, value);
+  }
+  cookiesByHost.set(host, [...cookies].map(([name, value]) => `${name}=${value}`).join("; "));
+}
+
 async function fetchFromWorkdayApi(apiUrl, requestPayload) {
+  const { host, origin, pathname } = new URL(apiUrl);
+  const site = pathname.split("/")[4] ?? "";
   let lastError;
   for (let attempt = 0; attempt < 5; attempt++) {
     let response;
@@ -47,6 +65,11 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          "Accept-Language": "en-US",
+          "User-Agent": BROWSER_USER_AGENT,
+          Origin: origin,
+          Referer: `${origin}/${site}`,
+          ...(cookiesByHost.has(host) && { Cookie: cookiesByHost.get(host) }),
         },
         body: JSON.stringify(requestPayload),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -58,10 +81,17 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
       continue;
     }
 
+    rememberCookies(host, response);
+
     if (response.status === 429 || response.status >= 500) {
-      lastError = new Error(`HTTP ${response.status}`);
-      console.log(`  └─ Workday HTTP ${response.status} — retrying (attempt ${attempt + 1}/5)`);
-      await delay(3000 * (attempt + 1));
+      const retryAfterSeconds = Number(response.headers.get("retry-after")) || 0;
+      const details = [
+        response.headers.get("cf-mitigated") && `cf-mitigated=${response.headers.get("cf-mitigated")}`,
+        retryAfterSeconds && `retry-after=${retryAfterSeconds}s`,
+      ].filter(Boolean).join(", ");
+      lastError = new Error(`HTTP ${response.status}${details ? ` (${details})` : ""}`);
+      console.log(`  └─ Workday ${lastError.message} — retrying (attempt ${attempt + 1}/5)`);
+      await delay(Math.max(3000 * (attempt + 1), Math.min(retryAfterSeconds, 60) * 1000));
       continue;
     }
 
