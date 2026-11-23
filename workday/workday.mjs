@@ -4,6 +4,7 @@ import "dotenv/config";
 import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet, saveRun } from "../store.mjs";
 import { sendTelegramAlerts } from "../telegram.mjs";
 import { callGemini, parseGeminiJson } from "../gemini.mjs";
+import { routeThroughWorkdayRelay } from "../ats-common.mjs";
 
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
@@ -42,6 +43,7 @@ const facetCache = await loadFacetCache();
 // Since 2026-11-16 Cloudflare (in front of Workday) answers many GitHub Actions requests with 429,
 // while the same requests from a home connection pass. So requests look like the careers page's own
 // (browser User-Agent, Origin/Referer, Cloudflare's cookies kept per host), and a 429 logs what Cloudflare said.
+// Cloudflare Workers do get through, so with WORKDAY_RELAY_URL set every request goes via cron-worker/workday-relay.
 const BROWSER_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36";
 const cookiesByHost = new Map();
@@ -62,7 +64,7 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
   for (let attempt = 0; attempt < 5; attempt++) {
     let response;
     try {
-      response = await fetch(apiUrl, {
+      response = await fetch(...routeThroughWorkdayRelay(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +77,7 @@ async function fetchFromWorkdayApi(apiUrl, requestPayload) {
         },
         body: JSON.stringify(requestPayload),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      });
+      }));
     } catch (error) {
       lastError = error;
       console.log(`  └─ Workday request failed (${error.message}) — retrying (attempt ${attempt + 1}/5)`);

@@ -16,6 +16,9 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
       TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+      # Workday requests go through cron-worker/workday-relay (Cloudflare challenges GitHub runner IPs)
+      WORKDAY_RELAY_URL: ${{ vars.WORKDAY_RELAY_URL }}
+      WORKDAY_RELAY_KEY: ${{ secrets.WORKDAY_RELAY_KEY }}
 
     steps:
       # score/score-jobs.mjs pings a job reposted after this time if its earlier score is high enough

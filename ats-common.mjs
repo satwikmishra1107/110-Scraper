@@ -77,14 +77,33 @@ export const loadCompanies = (path) =>
 
 // GET JSON with timeout; retries network errors, 429 and 5xx. Other statuses (404 = bad slug) fail fast.
 // `headers` is for sites that turn away requests without a browser User-Agent (score/descriptions.mjs).
+/**
+ * Sends myworkdayjobs.com requests through the Workday relay (cron-worker/workday-relay) when
+ * WORKDAY_RELAY_URL and WORKDAY_RELAY_KEY are set. Cloudflare in front of Workday challenges GitHub runner IPs
+ * but lets Cloudflare Workers through. Returns the [url, options] to pass to fetch; other URLs are unchanged.
+ */
+export function routeThroughWorkdayRelay(url, options = {}) {
+  const relayUrl = process.env.WORKDAY_RELAY_URL;
+  if (!relayUrl || !new URL(url).hostname.endsWith(".myworkdayjobs.com")) return [url, options];
+  return [
+    relayUrl,
+    {
+      ...options,
+      headers: { ...options.headers, "X-Relay-Key": process.env.WORKDAY_RELAY_KEY, "X-Target-Url": url },
+    },
+  ];
+}
+
 export async function fetchJson(url, { headers = {}, maxAttempts = 4 } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const res = await fetch(url, {
-        headers: { Accept: "application/json", ...headers },
-        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      });
+      const res = await fetch(
+        ...routeThroughWorkdayRelay(url, {
+          headers: { Accept: "application/json", ...headers },
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        }),
+      );
       if (res.ok) return await res.json();
       lastError = new Error(
         res.status === 404
