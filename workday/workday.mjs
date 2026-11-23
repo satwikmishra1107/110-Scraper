@@ -4,7 +4,7 @@ import "dotenv/config";
 import { saveJobsAndGetNew, loadFacetCache, saveFacet, deleteFacet, saveRun } from "../store.mjs";
 import { sendTelegramAlerts } from "../telegram.mjs";
 import { callGemini, parseGeminiJson } from "../gemini.mjs";
-import { routeThroughWorkdayRelay } from "../ats-common.mjs";
+import { isSoftwareDomain, routeThroughWorkdayRelay } from "../ats-common.mjs";
 
 const JOB_SEARCH_CRITERIA =
   "India (country-level location only) and software engineering / IT / technology job families";
@@ -239,6 +239,9 @@ async function scrapeCompany(company, scrapedAt, isRetry = false) {
       collectedJobs.push(
         ...recentJobsOnPage
           .filter((job) => isIndiaOrUnclear(job.locationsText))
+          // The AI-picked job families aren't enough: companies file some non-tech roles under tech families
+          // (Morgan Stanley's "Technology Management" has risk and client-onboarding jobs), so the title is checked too
+          .filter((job) => isSoftwareDomain(job.title))
           .map((job) => toNormalizedJob(company, job, scrapedAt)),
       );
 

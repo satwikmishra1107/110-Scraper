@@ -37,6 +37,9 @@ const SD_KEYWORDS = [
   "c++",
   "typescript",
   "mongo",
+  "python",
+  "android",
+  "computer scientist", // Adobe's title for its software engineers
 ];
 const INDIA_LOCATIONS = [
   "india",
